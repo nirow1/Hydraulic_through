@@ -1,0 +1,167 @@
+import math
+from datetime import datetime
+
+import numpy as np
+import time
+import cv2
+import os
+import re
+
+from PySide6.QtGui import QIcon, QPixmap, QImage
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Signal
+from threading import Thread
+from pypylon import pylon
+
+from Controllers.driver_controller import DriverController
+from Qt_files.Qt_python.ui_camera_view import Ui_Form
+from Controllers.cam_controller import CamController
+
+
+class CameraView(QWidget):
+    progress_signal = Signal(int)
+
+    #todo: vpínání kamery pokud začne photogrametrie
+    def __init__(self, drivers):
+        QWidget.__init__(self)
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
+
+        self.drivers: DriverController= drivers
+
+        self.cam: CamController | None= None
+        self.connect_to_camera()
+
+        self.current_img: QPixmap= QPixmap()
+        self.progress = 0
+        self.orthophoto_running = False
+        self.path = ""
+
+        self._initial_graphical_changes()
+        self._bind_camera_buttons()
+        self._bind_emits()
+
+    def _initial_graphical_changes(self):
+        self.ui.cam_lbl_1.setPixmap(QPixmap("./App_data/ico.png"))
+        self.ui.cam_lbl_1.setScaledContents(True)
+
+        self.ui.cam_lbl_2.setPixmap(QPixmap("./App_data/ico.png"))
+        self.ui.cam_lbl_2.setScaledContents(True)
+
+        self.ui.left_btn.setIcon(QIcon("./App_data/left.png"))
+        self.ui.right_btn.setIcon(QIcon("./App_data/right.png"))
+
+    def _bind_camera_buttons(self):
+        self.ui.cam_1_pg_btn.clicked.connect(lambda: self.ui.stackedWidget.setCurrentWidget(self.ui.cam_1_pg))
+        self.ui.cam_2_pg_btn.clicked.connect(lambda: self.ui.stackedWidget.setCurrentWidget(self.ui.cam_2_pg))
+
+        self.ui.left_btn.pressed.connect(lambda: self.drivers.start_jog(True))
+        self.ui.left_btn.released.connect(self.stop_moving)
+
+        self.ui.right_btn.pressed.connect(lambda: self.drivers.start_jog(False))
+        self.ui.right_btn.released.connect(self.stop_moving)
+
+        self.ui.save_photo_btn.clicked.connect(self._start_save_photo_thread)
+
+        self.ui.set_pos_btn.clicked.connect(lambda: self.drivers.set_position(int(self.ui.set_pos_le.text())))
+
+        self.ui.start_ortophoto_btn.clicked.connect(self.make_orthophoto_image)
+
+    def _bind_emits(self):
+        self.progress_signal.connect(self._update_progressbar)
+        if self.cam is not None:
+            self.cam.CAM_FRAME.connect(self._put_image_into_frame)
+
+    def connect_to_camera(self):
+        serial_number = "40620956"
+
+        cam_list = pylon.TlFactory.GetInstance().EnumerateDevices()
+        cam_list = sorted(cam_list, key=lambda camera: camera.GetFriendlyName())
+
+        selected_device = next((device for device in cam_list if device.GetSerialNumber() == serial_number), None)
+        if selected_device is not None:
+            self.cam = CamController(selected_device, 0)
+            self.cam.start_capturing()
+
+    def make_orthophoto_image(self):
+        photo_creation_thread = Thread(target=self._create_photos)
+        photo_creation_thread.start()
+
+    def _create_photos(self):
+        self.drivers.move_to_beginning()
+        time.sleep(11)
+        self.ui.currnet_action_lbl.setText("Taking photos...")
+        self.cam.set_frame_rate(4)
+        for i in range(125):
+            self.drivers.move_step(False)
+            time.sleep(1)
+            cv2.imwrite(f"./App_data/Orthophoto/image_{i}.png", self.current_img)
+            self.progress_signal.emit(i)
+
+        self.drivers.move_to_beginning()
+        self.cam.set_frame_rate(2)
+        self._process_orthophoto_image()
+
+    def orthophoto_status(self) -> bool:
+        return self.orthophoto_running
+
+    def _start_save_photo_thread(self):
+        Thread(target=self.save_photo).start()
+
+    def save_photo(self):
+        name = "snimek_kamery_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
+
+        path = f"{self.path}/{name}.png"
+
+        cv2.imwrite(path, self.current_img)
+
+    def _process_orthophoto_image(self):
+        image_folder = "./App_data/Orthophoto"
+        self.ui.currnet_action_lbl.setText("Processing image...")
+        image_files = sorted([f for f in os.listdir(image_folder) if f.endswith(('.png'))], key=self.natural_sort_key)
+
+        strips = []
+
+        for i, img_file in enumerate(image_files[::-1]):
+            img_path = os.path.join(image_folder, img_file)
+            self.progress_signal.emit(i)
+            img = cv2.imread(img_path)
+
+            # Define cropping parameters (adjust height fraction as needed)
+            height, width = img.shape[:2]
+            strip_height = 88
+            cropped_img = img[(height // 2) - (strip_height // 2): (height // 2) + (strip_height // 2), :]
+
+            strips.append(cropped_img)
+
+        merged_image = np.vstack(strips)
+        self.ui.currnet_action_lbl.setText("Hotovo")
+
+        name = "Orthophoto_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
+        cv2.imwrite(f"{self.path}/{name}.png", merged_image)
+
+    def _update_progressbar(self, value):
+        self.ui.orthophoto_pb.setValue(math.ceil(value / 1.25))
+
+    def set_path(self, path: str):
+        self.path = path
+
+    def _put_image_into_frame(self, image):
+        self.current_img = image
+        height, width, channels = image.shape
+        bytes_per_line = channels * width
+
+        q_image = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
+        q_pixmap = QPixmap.fromImage(q_image)
+        self.ui.cam_lbl_1.setPixmap(q_pixmap)
+
+    def stop_moving(self):
+        self.drivers.stop_jog()
+
+    def disconnect(self):
+        if self.cam:
+            self.cam.disconnect()
+
+    @staticmethod
+    def natural_sort_key(filename):
+        return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', filename)]
