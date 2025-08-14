@@ -1,15 +1,15 @@
 import os
 from threading import Thread
 
-import cv2
-import numpy
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QPixmap, QImage
 from pypylon import pylon
+import numpy
+import cv2
 
 
 class CamController(QObject):
     CAM_FRAME = Signal(numpy.ndarray)
+    FRAME_SAVED = Signal(int)
 
     def __init__(self, cam, cam_id):
         super().__init__()
@@ -56,6 +56,7 @@ class CamController(QObject):
                     image.AttachGrabResultBuffer(grab_result)
                     filename = f"{self.save_path}/Photogrammetry/Photogrammetry_1/cam_{self.cam_id}_{count}.png"
                     image.Save(pylon.ImageFileFormat_Png, filename)
+                    self.FRAME_SAVED.emit(self.cam_id)
                     break
                 else:
                     print(f"Error grabbing image {self.cam_id}")

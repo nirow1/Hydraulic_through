@@ -30,6 +30,7 @@ class CameraView(QWidget):
         self.drivers: DriverController= drivers
 
         self.cam: CamController | None= None
+        self.cam_2: CamController | None= None
         self.connect_to_camera()
 
         self.current_img_1= np.array([])
@@ -63,7 +64,7 @@ class CameraView(QWidget):
         self.ui.right_btn.pressed.connect(lambda: self.drivers.start_jog(False))
         self.ui.right_btn.released.connect(self.stop_moving)
 
-        self.ui.save_photo_btn.clicked.connect(self.save_photo_cam_1)
+        self.ui.save_photo_btn.clicked.connect(self.save_photo)
 
         self.ui.set_pos_btn.clicked.connect(lambda: self.drivers.set_position(int(self.ui.set_pos_le.text())))
 
@@ -72,18 +73,25 @@ class CameraView(QWidget):
     def _bind_emits(self):
         self.progress_signal.connect(self._update_progressbar)
         if self.cam is not None:
-            self.cam.CAM_FRAME.connect(self._put_image_into_frame)
+            self.cam.CAM_FRAME.connect(lambda image: self._put_image_into_frame(image, 1))
+        if self.cam_2 is not None:
+            self.cam_2.CAM_FRAME.connect(lambda image: self._put_image_into_frame(image, 2))
 
     def connect_to_camera(self):
         serial_number = "40620956"
+        serial_number_2 = "xxx" #todo doplnit
 
         cam_list = pylon.TlFactory.GetInstance().EnumerateDevices()
         cam_list = sorted(cam_list, key=lambda camera: camera.GetFriendlyName())
 
         selected_device = next((device for device in cam_list if device.GetSerialNumber() == serial_number), None)
+        selected_device_2 = next((device for device in cam_list if device.GetSerialNumber() == serial_number_2), None)
+
         if selected_device is not None:
             self.cam = CamController(selected_device, 0)
             self.cam.start_capturing()
+            self.cam_2 = CamController(selected_device_2, 1)
+            self.cam_2.start_capturing()
 
     def make_orthophoto_image(self):
         photo_creation_thread = Thread(target=self._create_photos)
@@ -107,19 +115,16 @@ class CameraView(QWidget):
     def orthophoto_status(self) -> bool:
         return self.orthophoto_running
 
-    def save_photo_cam_1(self):
-        Thread(target=self._save_photo, args=[1]).start()
+    def save_photo(self, cam_id: int):
+        Thread(target=self._save_photo, args=[cam_id]).start()
 
-    def save_photo_cam_2(self):
-        Thread(target=self._save_photo, args=[2]).start()
-
-    def _save_photo(self, cam: int):
-        if cam == 1:
+    def _save_photo(self, cam_id: int):
+        if cam_id == 1:
             current_image = self.current_img_1
         else:
             current_image = self.current_img_2
 
-        name = f"snimek_kamery_{str(cam)}" + datetime.now().strftime("%Y-%m-%d_%H_%M")
+        name = f"snimek_kamery_{str(cam_id)}" + datetime.now().strftime("%Y-%m-%d_%H_%M")
 
         path = f"{self.path}/{name}.png"
 
@@ -156,14 +161,21 @@ class CameraView(QWidget):
     def set_path(self, path: str):
         self.path = path
 
-    def _put_image_into_frame(self, image):
-        self.current_img_1 = image
+    def _put_image_into_frame(self, image, cam_id):
         height, width, channels = image.shape
         bytes_per_line = channels * width
 
         q_image = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
         q_pixmap = QPixmap.fromImage(q_image)
-        self.ui.cam_lbl_1.setPixmap(q_pixmap)
+
+        if cam_id == 1:
+            self.current_img_1 = image
+            self.ui.cam_lbl_1.setPixmap(q_pixmap)
+        else:
+            self.current_img_2 = image
+            self.ui.cam_lbl_2.setPixmap(q_pixmap)
+
+
 
     def stop_moving(self):
         self.drivers.stop_jog()

@@ -1,6 +1,7 @@
 import csv
 import math
 import os
+from threading import Thread
 
 from Controllers.phtgr_cam_controller import PhtgrCamController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
@@ -32,13 +33,16 @@ class PhotogrammetryView(QWidget):
         self.ui.start_new_phtgrm_btn.clicked.connect(self.start_photogrammetry)
 
     def _bind_emits(self):
-        self.drivers.STEP_EXECUTED_PG.connect(self.take_screenshot)
+        self.cameras.CAMS_READY.emit()# todo logiga okolo čekání na cams ready
 
-    def take_screenshot(self, count):
+    def create_photogrammetry_photos(self):
+        Thread(target=self._loop_through_photos).start()
+
+    def _loop_through_photos(self, count):
         self.cameras.acquire_frames(str(count))
-        self.ui.progressBar.setValue(math.ceil(count / 125 * 100))
-        if count == 125:
-            change_csv_status("./App_data/Test_plan/photogrammetry.csv", self.current_working_id, 1)
+        for i in range(124):
+            self.cameras.acquire_frames(i)
+        change_csv_status("./App_data/Test_plan/photogrammetry.csv", self.current_working_id, 1)
 
     def start_photogrammetry(self):
         self.current_working_id = self._create_photogrammetry_record()

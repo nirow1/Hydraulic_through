@@ -61,9 +61,6 @@ class DriverController(QThread):
         self._send_step_command()
         time.sleep(.5)
 
-        if pg:
-            self.STEP_EXECUTED_PG.emit(self.step_number)
-
         self.step_number += 1
         if self.step_number == 124:
             self.step_number = 0

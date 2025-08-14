@@ -103,16 +103,17 @@ class MainWindow(QMainWindow):
                 if row[3] == "0":
                     self._wait_until(target_time)
                     self.drivers.set_position(int(row[1]))
+                    time.sleep(11)
                     if row[2] == "foto 1":
-                        self.camera_view.save_photo_cam_1()
+                        self.camera_view.save_photo(1)
                     if row[2] == "foto 2":
-                        pass
+                        self.camera_view.save_photo(1)
                     if row[2] == "video 1":
                         pass
                     if row[2] == "video 1":
                         pass
                     if row[2] == "orthophoto":
-                        pass
+                        self.camera_view.make_orthophoto_image()
                     if row[2] == "photogrm":
                         pass
                     change_csv_status(path, i, 3)
