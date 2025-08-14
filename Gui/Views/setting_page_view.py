@@ -83,17 +83,25 @@ class SettingsView(QWidget):
         with open("./App_data/Test_plan/planed_flow.csv", "a", newline="") as flow_file:
             writer = csv.writer(flow_file)
             for row in test_plan_settings:
-                writer.writerow([self.create_datetime(row), row[3], 0])
+                if row[3] is not None and row[3] != "":
+                    writer.writerow([self.create_datetime(row), row[3], 0])
 
         with open("./App_data/Test_plan/cam_plans.csv", "a", newline="") as cam_file:
             writer = csv.writer(cam_file)
             for row in test_plan_settings:
-                writer.writerow([self.create_datetime(row), 0, "photogrm", 0] if row[4] == "1" else None)
-                writer.writerow([self.create_datetime(row), 0, "orthophoto", 0] if row[5] == "1" else None)
-                writer.writerow([self.create_datetime(row), row[6], "foto 1", 0] if row[6] != "" else None)
-                writer.writerow([self.create_datetime(row), row[7], "foto 2", 0] if row[7] != "" else None)
-                writer.writerow([self.create_datetime(row), row[8], "video 1", 0] if row[8] != "" else None)
-                writer.writerow([self.create_datetime(row), row[9], "video 2", 0] if row[9] != "" else None)
+                tasks = [
+                    ("foto 1", row[6] != "", row[6]),
+                    ("foto 2", row[7] != "", row[7]),
+                    ("video 1", row[8] != "", row[8]),
+                    ("video 2", row[9] != "", row[9]),
+                    ("orthophoto", row[5] == "1", 0),
+                    ("photogrm", row[4] == "1", 0),
+                ]
+                for label, condition, value in tasks:
+                    if condition:
+                        writer.writerow([self.create_datetime(row), value, label, 0])
+
+
 
     def _delete_data_from_files(self):
         file_names = ["./App_data/Test_plan/planed_flow.csv",

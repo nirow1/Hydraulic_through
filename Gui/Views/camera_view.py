@@ -32,7 +32,9 @@ class CameraView(QWidget):
         self.cam: CamController | None= None
         self.connect_to_camera()
 
-        self.current_img: QPixmap= QPixmap()
+        self.current_img_1= np.array([])
+        self.current_img_2= np.array([])
+
         self.progress = 0
         self.orthophoto_running = False
         self.path = ""
@@ -61,7 +63,7 @@ class CameraView(QWidget):
         self.ui.right_btn.pressed.connect(lambda: self.drivers.start_jog(False))
         self.ui.right_btn.released.connect(self.stop_moving)
 
-        self.ui.save_photo_btn.clicked.connect(self._start_save_photo_thread)
+        self.ui.save_photo_btn.clicked.connect(self.save_photo_cam_1)
 
         self.ui.set_pos_btn.clicked.connect(lambda: self.drivers.set_position(int(self.ui.set_pos_le.text())))
 
@@ -95,7 +97,7 @@ class CameraView(QWidget):
         for i in range(125):
             self.drivers.move_step(False)
             time.sleep(1)
-            cv2.imwrite(f"./App_data/Orthophoto/image_{i}.png", self.current_img)
+            cv2.imwrite(f"./App_data/Orthophoto/image_{i}.png", self.current_img_1)
             self.progress_signal.emit(i)
 
         self.drivers.move_to_beginning()
@@ -105,15 +107,23 @@ class CameraView(QWidget):
     def orthophoto_status(self) -> bool:
         return self.orthophoto_running
 
-    def _start_save_photo_thread(self):
-        Thread(target=self.save_photo).start()
+    def save_photo_cam_1(self):
+        Thread(target=self._save_photo, args=[1]).start()
 
-    def save_photo(self):
-        name = "snimek_kamery_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
+    def save_photo_cam_2(self):
+        Thread(target=self._save_photo, args=[2]).start()
+
+    def _save_photo(self, cam: int):
+        if cam == 1:
+            current_image = self.current_img_1
+        else:
+            current_image = self.current_img_2
+
+        name = f"snimek_kamery_{str(cam)}" + datetime.now().strftime("%Y-%m-%d_%H_%M")
 
         path = f"{self.path}/{name}.png"
 
-        cv2.imwrite(path, self.current_img)
+        cv2.imwrite(path, current_image)
 
     def _process_orthophoto_image(self):
         image_folder = "./App_data/Orthophoto"
@@ -147,7 +157,7 @@ class CameraView(QWidget):
         self.path = path
 
     def _put_image_into_frame(self, image):
-        self.current_img = image
+        self.current_img_1 = image
         height, width, channels = image.shape
         bytes_per_line = channels * width
 

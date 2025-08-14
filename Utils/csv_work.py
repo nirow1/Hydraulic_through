@@ -1,6 +1,5 @@
 import csv
 
-# todo this does not work when changing status of plans
 def change_csv_status(path: str, row: int, column: int):
     with open(path, mode="r+", newline="") as f:
         reader = csv.reader(f)

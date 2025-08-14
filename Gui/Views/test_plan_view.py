@@ -36,8 +36,7 @@ class TestPlanView(QWidget):
         self.ui.load_btn.hide()
         self.ui.send_through_le.setValidator(FloatValidator(2, 1))
         self.ui.flow_tw.verticalHeader().setVisible(False)
-        self.ui.phtgrm_tw.verticalHeader().setVisible(False)
-        self.ui.orthophoto_tw.verticalHeader().setVisible(False)
+        self.ui.cam_plans_tw.verticalHeader().setVisible(False)
         self.ui.continue_plan_btn.setVisible(False)
         self._set_columns()
 
@@ -84,14 +83,10 @@ class TestPlanView(QWidget):
         self.ui.progressBar.setValue(value)
 
     def update_tabs(self):
-        flow_data = extract_data_from_csv("./App_data/Test_plan/planed_flow.csv")
-        orthophoto_data = extract_data_from_csv("./App_data/Test_plan/planed_orthophoto.csv")
-        phtgrm_data = extract_data_from_csv("./App_data/Test_plan/planed_phtgrm.csv")
-        foto_data = extract_data_from_csv("./App_data/Test_plan/planed_foto.csv")
-        self.populate_table(self.ui.flow_tw, flow_data)
-        self.populate_table(self.ui.orthophoto_tw, orthophoto_data)
-        self.populate_table(self.ui.phtgrm_tw, phtgrm_data)
-        self.populate_table(self.ui.photo_tw, foto_data)
+        flow_plans = extract_data_from_csv("./App_data/Test_plan/planed_flow.csv")
+        cam_plans = extract_data_from_csv("./App_data/Test_plan/cam_plans.csv")
+        self.populate_table(self.ui.flow_tw, flow_plans)
+        self.populate_table(self.ui.cam_plans_tw, cam_plans)
 
     def set_path(self, path: str):
         self.path = path
@@ -111,8 +106,7 @@ class TestPlanView(QWidget):
                 table.setItem(row_position, column, item)
 
     def _set_columns(self):
-        self.ui.flow_tw.setColumnWidth(0, 158)
+        self.ui.flow_tw.setColumnWidth(0, 170)
         self.ui.flow_tw.setColumnWidth(1, 47)
         self.ui.flow_tw.setColumnWidth(2, 47)
-        self.ui.phtgrm_tw.setColumnWidth(0, 207)
-        self.ui.orthophoto_tw.setColumnWidth(0, 207)
+        self.ui.cam_plans_tw.setColumnWidth(0, 170)

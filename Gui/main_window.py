@@ -92,21 +92,34 @@ class MainWindow(QMainWindow):
 
     def _start_plans(self):
         self._change_button_state(False)
-        Thread(target=self._iterate_flow_plans, args=["./App_data/Test_plan/planed_flow.csv"], daemon=True).start()
-        Thread(target=self._iterate_cam_plans, args=["./App_data/Test_plan/planed_phtgrm.csv", self._start_photogrammetry], daemon=True).start()
-        Thread(target=self._iterate_cam_plans, args=["./App_data/Test_plan/planed_orthophoto.csv", self._start_orthophoto], daemon=True).start()
+        Thread(target=self._iterate_flow_plans, daemon=True).start()
 
-    def _iterate_cam_plans(self, path, function):
+    def _iterate_cam_plans(self):
+        path = "./App_data/Test_plan/cam_plans.csv"
         flow_plans = extract_data_from_csv(path)
         for i, row in enumerate(flow_plans):
             if not self.stop:
                 target_time = datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S")
-                if row[1] == "0":
-                    self._wait_until(target_time, function)
-                    change_csv_status(path, i, 1)
+                if row[3] == "0":
+                    self._wait_until(target_time)
+                    self.drivers.set_position(int(row[1]))
+                    if row[2] == "foto 1":
+                        self.camera_view.save_photo_cam_1()
+                    if row[2] == "foto 2":
+                        pass
+                    if row[2] == "video 1":
+                        pass
+                    if row[2] == "video 1":
+                        pass
+                    if row[2] == "orthophoto":
+                        pass
+                    if row[2] == "photogrm":
+                        pass
+                    change_csv_status(path, i, 3)
                     self.test_plan_view.update_tabs()
 
-    def _iterate_flow_plans(self, path):
+    def _iterate_flow_plans(self):
+        path = "./App_data/Test_plan/planed_flow.csv"
         flow_plans = extract_data_from_csv(path)
         self.test_plan_view.start_saving()
 
@@ -116,7 +129,8 @@ class MainWindow(QMainWindow):
                 flow_value = float(row[1])
                 self.change_next_flow.emit([i / (len(flow_plans)) * 100, row[0], row[1]])
                 if row[2] == "0":
-                    self._wait_until(target_time, lambda: self._change_flow(flow_value))
+                    self._wait_until(target_time)
+                    self._change_flow(flow_value)
                     change_csv_status(path, i, 2)
                     self.update_tabs.emit()
 
@@ -124,17 +138,14 @@ class MainWindow(QMainWindow):
         self._change_button_state(True)
         self.stop = False
 
-    def _wait_until(self, target_time, callback):
+    def _wait_until(self, target_time):
         while datetime.now() < target_time and not self.stop:
             time.sleep(1)
-        if not self.stop:
-            callback()
 
     def _change_flow(self, flow: float):
         flow_voltage = int(flow * 10)
         self.logo.write_logo_ushort(1, flow_voltage)
 
-    #todo: photo počká 3 sekndy pokud neběží ortophoto tak se zapne
     def _start_orthophoto(self):
         self.camera_view.make_orthophoto_image()
 

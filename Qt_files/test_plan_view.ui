@@ -70,26 +70,6 @@ background-color: #ccc;
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
-       <widget class="QTableWidget" name="phtgrm_tw">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <column>
-         <property name="text">
-          <string>Photogrammerie </string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Stav</string>
-         </property>
-        </column>
-       </widget>
-      </item>
-      <item>
        <widget class="QTableWidget" name="flow_tw">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -115,27 +95,13 @@ background-color: #ccc;
        </widget>
       </item>
       <item>
-       <widget class="QTableWidget" name="orthophoto_tw">
+       <widget class="QTableWidget" name="cam_plans_tw">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <column>
-         <property name="text">
-          <string>Orthophoto</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Stav</string>
-         </property>
-        </column>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTableWidget" name="photo_tw">
         <column>
          <property name="text">
           <string>Datum</string>

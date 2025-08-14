@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'test_plan_viewbWGdgc.ui'
+## Form generated from reading UI file 'test_plan_viewXfglJy.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -71,64 +71,43 @@ class Ui_Form(object):
         self.widget_.setMaximumSize(QSize(16777215, 280))
         self.horizontalLayout_5 = QHBoxLayout(self.widget_)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.phtgrm_tw = QTableWidget(self.widget_)
-        if (self.phtgrm_tw.columnCount() < 2):
-            self.phtgrm_tw.setColumnCount(2)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.phtgrm_tw.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.phtgrm_tw.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        self.phtgrm_tw.setObjectName(u"phtgrm_tw")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.phtgrm_tw.sizePolicy().hasHeightForWidth())
-        self.phtgrm_tw.setSizePolicy(sizePolicy)
-
-        self.horizontalLayout_5.addWidget(self.phtgrm_tw)
-
         self.flow_tw = QTableWidget(self.widget_)
         if (self.flow_tw.columnCount() < 3):
             self.flow_tw.setColumnCount(3)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.flow_tw.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.flow_tw.setHorizontalHeaderItem(1, __qtablewidgetitem1)
         __qtablewidgetitem2 = QTableWidgetItem()
-        self.flow_tw.setHorizontalHeaderItem(0, __qtablewidgetitem2)
-        __qtablewidgetitem3 = QTableWidgetItem()
-        self.flow_tw.setHorizontalHeaderItem(1, __qtablewidgetitem3)
-        __qtablewidgetitem4 = QTableWidgetItem()
-        self.flow_tw.setHorizontalHeaderItem(2, __qtablewidgetitem4)
+        self.flow_tw.setHorizontalHeaderItem(2, __qtablewidgetitem2)
         self.flow_tw.setObjectName(u"flow_tw")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.flow_tw.sizePolicy().hasHeightForWidth())
         self.flow_tw.setSizePolicy(sizePolicy)
 
         self.horizontalLayout_5.addWidget(self.flow_tw)
 
-        self.orthophoto_tw = QTableWidget(self.widget_)
-        if (self.orthophoto_tw.columnCount() < 2):
-            self.orthophoto_tw.setColumnCount(2)
+        self.cam_plans_tw = QTableWidget(self.widget_)
+        if (self.cam_plans_tw.columnCount() < 4):
+            self.cam_plans_tw.setColumnCount(4)
+        __qtablewidgetitem3 = QTableWidgetItem()
+        self.cam_plans_tw.setHorizontalHeaderItem(0, __qtablewidgetitem3)
+        __qtablewidgetitem4 = QTableWidgetItem()
+        self.cam_plans_tw.setHorizontalHeaderItem(1, __qtablewidgetitem4)
         __qtablewidgetitem5 = QTableWidgetItem()
-        self.orthophoto_tw.setHorizontalHeaderItem(0, __qtablewidgetitem5)
+        self.cam_plans_tw.setHorizontalHeaderItem(2, __qtablewidgetitem5)
         __qtablewidgetitem6 = QTableWidgetItem()
-        self.orthophoto_tw.setHorizontalHeaderItem(1, __qtablewidgetitem6)
-        self.orthophoto_tw.setObjectName(u"orthophoto_tw")
-        sizePolicy.setHeightForWidth(self.orthophoto_tw.sizePolicy().hasHeightForWidth())
-        self.orthophoto_tw.setSizePolicy(sizePolicy)
+        self.cam_plans_tw.setHorizontalHeaderItem(3, __qtablewidgetitem6)
+        self.cam_plans_tw.setObjectName(u"cam_plans_tw")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.cam_plans_tw.sizePolicy().hasHeightForWidth())
+        self.cam_plans_tw.setSizePolicy(sizePolicy1)
 
-        self.horizontalLayout_5.addWidget(self.orthophoto_tw)
-
-        self.photo_tw = QTableWidget(self.widget_)
-        if (self.photo_tw.columnCount() < 4):
-            self.photo_tw.setColumnCount(4)
-        __qtablewidgetitem7 = QTableWidgetItem()
-        self.photo_tw.setHorizontalHeaderItem(0, __qtablewidgetitem7)
-        __qtablewidgetitem8 = QTableWidgetItem()
-        self.photo_tw.setHorizontalHeaderItem(1, __qtablewidgetitem8)
-        __qtablewidgetitem9 = QTableWidgetItem()
-        self.photo_tw.setHorizontalHeaderItem(2, __qtablewidgetitem9)
-        __qtablewidgetitem10 = QTableWidgetItem()
-        self.photo_tw.setHorizontalHeaderItem(3, __qtablewidgetitem10)
-        self.photo_tw.setObjectName(u"photo_tw")
-
-        self.horizontalLayout_5.addWidget(self.photo_tw)
+        self.horizontalLayout_5.addWidget(self.cam_plans_tw)
 
 
         self.verticalLayout.addWidget(self.widget_)
@@ -338,28 +317,20 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        ___qtablewidgetitem = self.phtgrm_tw.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Photogrammerie ", None));
-        ___qtablewidgetitem1 = self.phtgrm_tw.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Stav", None));
-        ___qtablewidgetitem2 = self.flow_tw.horizontalHeaderItem(0)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Datum", None));
-        ___qtablewidgetitem3 = self.flow_tw.horizontalHeaderItem(1)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Tok", None));
-        ___qtablewidgetitem4 = self.flow_tw.horizontalHeaderItem(2)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Stav", None));
-        ___qtablewidgetitem5 = self.orthophoto_tw.horizontalHeaderItem(0)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Orthophoto", None));
-        ___qtablewidgetitem6 = self.orthophoto_tw.horizontalHeaderItem(1)
+        ___qtablewidgetitem = self.flow_tw.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Datum", None));
+        ___qtablewidgetitem1 = self.flow_tw.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Tok", None));
+        ___qtablewidgetitem2 = self.flow_tw.horizontalHeaderItem(2)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Stav", None));
+        ___qtablewidgetitem3 = self.cam_plans_tw.horizontalHeaderItem(0)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Datum", None));
+        ___qtablewidgetitem4 = self.cam_plans_tw.horizontalHeaderItem(1)
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Pozice", None));
+        ___qtablewidgetitem5 = self.cam_plans_tw.horizontalHeaderItem(2)
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Druh", None));
+        ___qtablewidgetitem6 = self.cam_plans_tw.horizontalHeaderItem(3)
         ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Stav", None));
-        ___qtablewidgetitem7 = self.photo_tw.horizontalHeaderItem(0)
-        ___qtablewidgetitem7.setText(QCoreApplication.translate("Form", u"Datum", None));
-        ___qtablewidgetitem8 = self.photo_tw.horizontalHeaderItem(1)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("Form", u"Pozice", None));
-        ___qtablewidgetitem9 = self.photo_tw.horizontalHeaderItem(2)
-        ___qtablewidgetitem9.setText(QCoreApplication.translate("Form", u"Druh", None));
-        ___qtablewidgetitem10 = self.photo_tw.horizontalHeaderItem(3)
-        ___qtablewidgetitem10.setText(QCoreApplication.translate("Form", u"Stav", None));
         self.label_4.setText(QCoreApplication.translate("Form", u"Postup procesu:", None))
         self.load_btn.setText(QCoreApplication.translate("Form", u"Na\u010d\u00edst", None))
         self.start_plan_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt pl\u00e1n", None))
