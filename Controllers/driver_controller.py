@@ -53,11 +53,11 @@ class DriverController(QThread):
         if self.connected:
             self.client.write_registers(24578, [17])
 
-    def move_step(self, photogrammetry: bool):
-        thread = Thread(target=self._move_step, args=[photogrammetry])
+    def move_step(self):
+        thread = Thread(target=self._move_step)
         thread.start()
 
-    def _move_step(self, pg):
+    def _move_step(self):
         self._send_step_command()
         time.sleep(.5)
 

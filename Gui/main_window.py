@@ -107,15 +107,15 @@ class MainWindow(QMainWindow):
                     if row[2] == "foto 1":
                         self.camera_view.save_photo(1)
                     if row[2] == "foto 2":
-                        self.camera_view.save_photo(1)
+                        self.camera_view.save_photo(2)
                     if row[2] == "video 1":
-                        pass
-                    if row[2] == "video 1":
-                        pass
+                        self.camera_view.save_video(1)
+                    if row[2] == "video 2":
+                        self.camera_view.save_video(2)
                     if row[2] == "orthophoto":
                         self.camera_view.make_orthophoto_image()
                     if row[2] == "photogrm":
-                        pass
+                        self.photogrammetry_view.start_photogrammetry()
                     change_csv_status(path, i, 3)
                     self.test_plan_view.update_tabs()
 

@@ -103,7 +103,7 @@ class CameraView(QWidget):
         self.ui.currnet_action_lbl.setText("Taking photos...")
         self.cam.set_frame_rate(4)
         for i in range(125):
-            self.drivers.move_step(False)
+            self.drivers.move_step()
             time.sleep(1)
             cv2.imwrite(f"./App_data/Orthophoto/image_{i}.png", self.current_img_1)
             self.progress_signal.emit(i)
@@ -115,20 +115,26 @@ class CameraView(QWidget):
     def orthophoto_status(self) -> bool:
         return self.orthophoto_running
 
-    def save_photo(self, cam_id: int):
-        Thread(target=self._save_photo, args=[cam_id]).start()
+    def save_photo(self, cam_id: int, file="snimek_kamery_"):
+        Thread(target=self._save_photo, args=[cam_id, file]).start()
 
-    def _save_photo(self, cam_id: int):
+    def _save_photo(self, cam_id: int, file):
         if cam_id == 1:
             current_image = self.current_img_1
         else:
             current_image = self.current_img_2
 
-        name = f"snimek_kamery_{str(cam_id)}" + datetime.now().strftime("%Y-%m-%d_%H_%M")
+        name = f"{file}{str(cam_id)}_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         path = f"{self.path}/{name}.png"
 
         cv2.imwrite(path, current_image)
+
+    def save_video(self, cam_id: int):
+        dir_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        for i in range(60):
+            self.save_photo(cam_id, f"video_{cam_id}_{dir_time}/snimek")
+            time.sleep(1)
 
     def _process_orthophoto_image(self):
         image_folder = "./App_data/Orthophoto"

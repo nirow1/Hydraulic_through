@@ -1,6 +1,7 @@
 import csv
 import math
 import os
+import time
 from threading import Thread
 
 from Controllers.phtgr_cam_controller import PhtgrCamController
@@ -21,6 +22,7 @@ class PhotogrammetryView(QWidget):
         # variables
         self.current_working_id = 0
         self.path: str = ""
+        self.cams_ready = False
 
         self._initial_graphical_changes()
         self._bind_buttons()
@@ -33,7 +35,7 @@ class PhotogrammetryView(QWidget):
         self.ui.start_new_phtgrm_btn.clicked.connect(self.start_photogrammetry)
 
     def _bind_emits(self):
-        self.cameras.CAMS_READY.emit()# todo logiga okolo čekání na cams ready
+        self.cameras.CAMS_READY.emit(lambda: self._change_cams_state(True))
 
     def create_photogrammetry_photos(self):
         Thread(target=self._loop_through_photos).start()
@@ -41,15 +43,18 @@ class PhotogrammetryView(QWidget):
     def _loop_through_photos(self, count):
         self.cameras.acquire_frames(str(count))
         for i in range(124):
+            self._change_cams_state(False)
             self.cameras.acquire_frames(i)
+            while not self.cams_ready:
+                time.sleep(0.05)
         change_csv_status("./App_data/Test_plan/photogrammetry.csv", self.current_working_id, 1)
 
+    def _change_cams_state(self, state: bool):
+        self.cams_ready = state
+
     def start_photogrammetry(self):
-        self.current_working_id = self._create_photogrammetry_record()
-        self.ui.start_new_phtgrm_btn.setEnabled(False)
         self._create_directory()
-        self.drivers.move_step(True)
-        self.ui.start_new_phtgrm_btn.setEnabled(True)
+        self.create_photogrammetry_photos()
 
     def _create_photogrammetry_record(self):
         file_path = "./App_data/Test_plan/photogrammetry.csv"
