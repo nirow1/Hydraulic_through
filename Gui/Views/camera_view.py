@@ -97,15 +97,19 @@ class CameraView(QWidget):
 
         if device_1:
             self.cam = CamController(device_1, 0)
-            #self.cam.start_capturing()
+            self.cam.start_capturing()
 
         if device_2:
             self.cam_2 = CamController(device_2, 1)
-            #self.cam_2.start_capturing()
+            self.cam_2.start_capturing()
 
-    def make_orthophoto_image(self):
-        photo_creation_thread = Thread(target=self._create_photos)
-        photo_creation_thread.start()
+    def make_orthophoto_image(self, blocking=False):
+        if blocking:
+            self._create_photos()
+            self._process_orthophoto_image()
+        else:
+            photo_creation_thread = Thread(target=self._create_photos)
+            photo_creation_thread.start()
 
     def _create_photos(self):
         self.drivers.move_to_beginning()
@@ -120,7 +124,6 @@ class CameraView(QWidget):
 
         self.drivers.move_to_beginning()
         self.cam.set_frame_rate(2)
-        self._process_orthophoto_image()
 
     def orthophoto_status(self) -> bool:
         return self.orthophoto_running
@@ -135,21 +138,20 @@ class CameraView(QWidget):
             current_image = self.current_img_2
 
         name = f"{file}{str(cam_id)}_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
         path = f"{self.path}/{name}.png"
-
         cv2.imwrite(path, current_image)
 
-    #todo: udělat toto přesnější
-    def save_video(self, cam_id: int):
-        Thread(target=self._save_video, args=[cam_id]).start()
+    def save_video(self, cam_id: int, blocking=False):
+        if blocking:
+            self._save_video(cam_id)
+        else:
+            Thread(target=self._save_video, args=[cam_id]).start()
 
     def _save_video(self, cam_id: int):
         dir_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         os.makedirs(self.path + f"/video_{cam_id}_{dir_time}", exist_ok=True)
         for i in range(60):
             self._save_photo(cam_id, f"video_{cam_id}_{dir_time}/snimek")
-            time.sleep(1)
 
     def _process_orthophoto_image(self):
         image_folder = "./App_data/Orthophoto"

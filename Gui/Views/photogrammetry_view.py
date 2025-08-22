@@ -36,10 +36,22 @@ class PhotogrammetryView(QWidget):
     def _bind_emits(self):
         self.cameras.CAMS_READY.connect(lambda: self._change_cams_state(True))
 
-    def create_photogrammetry_photos(self):
-        Thread(target=self._loop_through_photos).start()
+    def _change_cams_state(self, state: bool):
+        self.cams_ready = state
 
-    def _loop_through_photos(self):
+    def start_photogrammetry(self, blocking=False):
+        if blocking:
+            self._create_directory()
+            self._create_photogrammetry_photos()
+        else:
+            self._create_directory()
+            Thread(target=self._create_photogrammetry_photos).start()
+
+    def _create_directory(self):
+        path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_working_id}"
+        os.makedirs(path, exist_ok=True)
+
+    def _create_photogrammetry_photos(self):
         self.drivers.move_to_beginning()
         time.sleep(11)
         for i in range(124):
@@ -50,13 +62,6 @@ class PhotogrammetryView(QWidget):
                 time.sleep(0.05)
             self.drivers.move_step()
         change_csv_status("./App_data/Test_plan/photogrammetry.csv", self.current_working_id, 1)
-
-    def _change_cams_state(self, state: bool):
-        self.cams_ready = state
-
-    def start_photogrammetry(self):
-        self._create_directory()
-        self.create_photogrammetry_photos()
 
     def _create_photogrammetry_record(self):
         file_path = "./App_data/Test_plan/photogrammetry.csv"
@@ -94,7 +99,3 @@ class PhotogrammetryView(QWidget):
 
     def set_path(self, path):
         self.path = path
-
-    def _create_directory(self):
-        path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_working_id}"
-        os.makedirs(path, exist_ok=True)

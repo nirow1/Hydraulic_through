@@ -72,6 +72,8 @@ class MainWindow(QMainWindow):
         self.ui.stop_btn.clicked.connect(self._stop_through)
 
     def _bind_emits(self):
+        self.update_tabs.connect(self._generate_test_plan)
+
         self.settings_view.GENERATE_TEST_PLAN.connect(self._generate_test_plan)
         self.settings_view.SAVE_PATH.connect(self._set_save_path)
 
@@ -94,7 +96,6 @@ class MainWindow(QMainWindow):
         self._change_button_state(False)
         Thread(target=self._iterate_flow_plans, daemon=True).start()
 
-    #todo: je třeba udělat checky na to jestli byl proces získávání fotky úspěšně dokončen
     def _iterate_cam_plans(self):
         path = "./App_data/Test_plan/cam_plans.csv"
         flow_plans = extract_data_from_csv(path)
@@ -107,18 +108,20 @@ class MainWindow(QMainWindow):
                     time.sleep(11)
                     if row[2] == "foto 1":
                         self.camera_view.save_photo(1)
+                        time.sleep(2)
                     if row[2] == "foto 2":
                         self.camera_view.save_photo(2)
+                        time.sleep(2)
                     if row[2] == "video 1":
-                        self.camera_view.save_video(1)
+                        self.camera_view.save_video(1, blocking=True)
                     if row[2] == "video 2":
-                        self.camera_view.save_video(2)
+                        self.camera_view.save_video(2, blocking=True)
                     if row[2] == "orthophoto":
-                        self.camera_view.make_orthophoto_image()
+                        self.camera_view.make_orthophoto_image(blocking=True)
                     if row[2] == "photogrm":
-                        self.photogrammetry_view.start_photogrammetry()
+                        self.photogrammetry_view.start_photogrammetry(blocking=True)
                     change_csv_status(path, i, 3)
-                    self.test_plan_view.update_tabs()
+                    self.update_tabs.emit()
 
     def _iterate_flow_plans(self):
         path = "./App_data/Test_plan/planed_flow.csv"
