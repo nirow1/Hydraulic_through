@@ -1,6 +1,5 @@
-import csv
-import math
 import os
+import csv
 import time
 from threading import Thread
 
@@ -35,18 +34,21 @@ class PhotogrammetryView(QWidget):
         self.ui.start_new_phtgrm_btn.clicked.connect(self.start_photogrammetry)
 
     def _bind_emits(self):
-        self.cameras.CAMS_READY.emit(lambda: self._change_cams_state(True))
+        self.cameras.CAMS_READY.connect(lambda: self._change_cams_state(True))
 
     def create_photogrammetry_photos(self):
         Thread(target=self._loop_through_photos).start()
 
-    def _loop_through_photos(self, count):
-        self.cameras.acquire_frames(str(count))
+    def _loop_through_photos(self):
+        self.drivers.move_to_beginning()
+        time.sleep(11)
         for i in range(124):
+            print(f"foto:{i}")
             self._change_cams_state(False)
             self.cameras.acquire_frames(i)
             while not self.cams_ready:
                 time.sleep(0.05)
+            self.drivers.move_step()
         change_csv_status("./App_data/Test_plan/photogrammetry.csv", self.current_working_id, 1)
 
     def _change_cams_state(self, state: bool):

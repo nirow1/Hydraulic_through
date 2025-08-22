@@ -27,22 +27,28 @@ class SettingsView(QWidget):
     def _initial_graphical_changes(self):
         self._resize_table_widget()
         self.ui.xml_file_dir_btn.setIcon(QIcon("./App_data/dir_icon.png"))
+        self.ui.save_path_dir_btn.setIcon(QIcon("./App_data/dir_icon.png"))
         self.ui.tableWidget.verticalHeader().setVisible(False)
 
     def _bind_buttons(self):
-        self.ui.xml_file_dir_btn.clicked.connect(lambda: self._open_dir_dialog(self.ui.xml_file_dir_le))
+        self.ui.xml_file_dir_btn.clicked.connect(lambda: self._open_file_dialog(self.ui.xml_file_dir_le))
         self.ui.generate_test_plan_btn.clicked.connect(self.generate_test_plan)
         self.ui.add_row_btn.clicked.connect(self._add_row)
         self.ui.delete_row_btn.clicked.connect(self._delete_row)
 
         self.ui.set_saving_path_btn.clicked.connect(self._create_save_path)
-        self.ui.save_path_dir_btn.clicked.connect(lambda: self._open_dir_dialog(self.ui.set_saving_path_le))
+        self.ui.save_path_dir_btn.clicked.connect(self._open_dir_dialog)
 
-    def _open_dir_dialog(self, lineedit: QLineEdit):
+    def _open_file_dialog(self, lineedit: QLineEdit):
         options = QFileDialog(self).options()
         self.xls_path = QFileDialog.getOpenFileName(self, "Select Folder", "", options=options)
         lineedit.setText(self.xls_path[0])
         self._load_xls_data()
+
+    def _open_dir_dialog(self):
+        options = QFileDialog(self).options()
+        folder_path = QFileDialog.getExistingDirectory(self, "Select Folder", "", options=options)
+        self.ui.set_saving_path_le.setText(folder_path)
 
     def _load_xls_data(self):
         workbook = openpyxl.load_workbook(self.xls_path[0])
@@ -64,7 +70,7 @@ class SettingsView(QWidget):
         self.GENERATE_TEST_PLAN.emit()
 
     def _create_save_path(self):
-        name = "/výsledky_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
+        name = "/vysledky_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
         path = self.ui.set_saving_path_le.text() + name
         os.makedirs(path)
         self.SAVE_PATH.emit(path)

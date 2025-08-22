@@ -15,11 +15,17 @@ class PhtgrCamController(QObject):
         super().__init__()
         self.cam_list: List[CamController] = []
         self.cams_ready = [True, True, True, True]
-        self._initialize_cameras()
+        Thread(target=self._initialize_cameras).start()
 
-    def bind_emits(self):
-        for cam in self.cam_list:
-            cam.FRAME_SAVED.connect(partial(self._change_cam_status, cam.cam_id))
+    def _bind_emits(self):
+
+        self.cam_list[0].FRAME_SAVED.connect(self._change_cam_status)
+        self.cam_list[1].FRAME_SAVED.connect(self._change_cam_status)
+        self.cam_list[2].FRAME_SAVED.connect(self._change_cam_status)
+        self.cam_list[3].FRAME_SAVED.connect(self._change_cam_status)
+
+        """for cam in self.cam_list:
+            cam.FRAME_SAVED.connect(partial(self._change_cam_status, cam.cam_id))"""
 
     def _initialize_cameras(self):
         cam_list = pylon.TlFactory.GetInstance().EnumerateDevices()
@@ -27,10 +33,14 @@ class PhtgrCamController(QObject):
         count = 0
 
         for camera in cam_list:
-            if camera.GetSerialNumber() != "40620956":
+            try:
                 cam = CamController(camera, count)
                 count += 1
                 self.cam_list.append(cam)
+            except Exception as e:
+                print(e)
+
+        self._bind_emits()
 
     def acquire_frames(self, count):
         thread = Thread(target=self._acquire_frames, args=[count])
@@ -40,6 +50,7 @@ class PhtgrCamController(QObject):
         self.cams_ready = [False, False, False, False]
         for cam in self.cam_list:
             cam.grab_frame(count)
+            time.sleep(1)
         while not all(self.cams_ready):
             time.sleep(.05)
         self.CAMS_READY.emit()

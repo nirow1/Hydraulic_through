@@ -21,7 +21,6 @@ from Controllers.cam_controller import CamController
 class CameraView(QWidget):
     progress_signal = Signal(int)
 
-    #todo: vpínání kamery pokud začne photogrametrie
     def __init__(self, drivers):
         QWidget.__init__(self)
         self.ui = Ui_Form()
@@ -31,7 +30,7 @@ class CameraView(QWidget):
 
         self.cam: CamController | None= None
         self.cam_2: CamController | None= None
-        self.connect_to_camera()
+        self.connect_to_cameras()
 
         self.current_img_1= np.array([])
         self.current_img_2= np.array([])
@@ -64,7 +63,11 @@ class CameraView(QWidget):
         self.ui.right_btn.pressed.connect(lambda: self.drivers.start_jog(False))
         self.ui.right_btn.released.connect(self.stop_moving)
 
-        self.ui.save_photo_btn.clicked.connect(self.save_photo)
+        self.ui.save_photo_btn.clicked.connect(lambda: self.save_photo(1))
+        self.ui.save_photo_btn_2.clicked.connect(lambda: self.save_photo(2))
+
+        self.ui.save_video_btn.clicked.connect(lambda: self.save_video(1))
+        self.ui.save_video_btn_2.clicked.connect(lambda: self.save_video(2))
 
         self.ui.set_pos_btn.clicked.connect(lambda: self.drivers.set_position(int(self.ui.set_pos_le.text())))
 
@@ -77,21 +80,28 @@ class CameraView(QWidget):
         if self.cam_2 is not None:
             self.cam_2.CAM_FRAME.connect(lambda image: self._put_image_into_frame(image, 2))
 
-    def connect_to_camera(self):
-        serial_number = "40620956"
-        serial_number_2 = "xxx" #todo doplnit
+    def connect_to_cameras(self):
+        serial_number_1 = "40620956"
+        serial_number_2 = "40622574"
 
+        # Enumerate devices
         cam_list = pylon.TlFactory.GetInstance().EnumerateDevices()
-        cam_list = sorted(cam_list, key=lambda camera: camera.GetFriendlyName())
 
-        selected_device = next((device for device in cam_list if device.GetSerialNumber() == serial_number), None)
-        selected_device_2 = next((device for device in cam_list if device.GetSerialNumber() == serial_number_2), None)
+        if not cam_list:
+            print("No cameras found.")
+            return
 
-        if selected_device is not None:
-            self.cam = CamController(selected_device, 0)
-            self.cam.start_capturing()
-            self.cam_2 = CamController(selected_device_2, 1)
-            self.cam_2.start_capturing()
+        # Find devices by serial
+        device_1 = next((dev for dev in cam_list if dev.GetSerialNumber() == serial_number_1), None)
+        device_2 = next((dev for dev in cam_list if dev.GetSerialNumber() == serial_number_2), None)
+
+        if device_1:
+            self.cam = CamController(device_1, 0)
+            #self.cam.start_capturing()
+
+        if device_2:
+            self.cam_2 = CamController(device_2, 1)
+            #self.cam_2.start_capturing()
 
     def make_orthophoto_image(self):
         photo_creation_thread = Thread(target=self._create_photos)
@@ -130,10 +140,15 @@ class CameraView(QWidget):
 
         cv2.imwrite(path, current_image)
 
+    #todo: udělat toto přesnější
     def save_video(self, cam_id: int):
+        Thread(target=self._save_video, args=[cam_id]).start()
+
+    def _save_video(self, cam_id: int):
         dir_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        os.makedirs(self.path + f"/video_{cam_id}_{dir_time}", exist_ok=True)
         for i in range(60):
-            self.save_photo(cam_id, f"video_{cam_id}_{dir_time}/snimek")
+            self._save_photo(cam_id, f"video_{cam_id}_{dir_time}/snimek")
             time.sleep(1)
 
     def _process_orthophoto_image(self):

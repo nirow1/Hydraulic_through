@@ -19,7 +19,7 @@ from Utils.csv_work import extract_data_from_csv, change_csv_status
 class MainWindow(QMainWindow):
     change_next_flow = Signal(list)
     update_tabs = Signal()
-
+    #todo: je třeba prozkoumat jaký z threadu se neuzavře a začne spotřebovávat ram
     def __init__(self):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
@@ -94,6 +94,7 @@ class MainWindow(QMainWindow):
         self._change_button_state(False)
         Thread(target=self._iterate_flow_plans, daemon=True).start()
 
+    #todo: je třeba udělat checky na to jestli byl proces získávání fotky úspěšně dokončen
     def _iterate_cam_plans(self):
         path = "./App_data/Test_plan/cam_plans.csv"
         flow_plans = extract_data_from_csv(path)

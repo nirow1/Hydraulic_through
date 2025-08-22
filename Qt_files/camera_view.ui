@@ -203,6 +203,19 @@ QScrollBar::add-line:vertical
               <number>0</number>
              </property>
              <item>
+              <widget class="QPushButton" name="save_video_btn">
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Uložit video</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="save_photo_btn">
                <property name="maximumSize">
                 <size>
@@ -319,6 +332,19 @@ QScrollBar::add-line:vertical
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
+                <item>
+                 <widget class="QPushButton" name="save_video_btn_2">
+                  <property name="maximumSize">
+                   <size>
+                    <width>120</width>
+                    <height>35</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Uložit Video</string>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <widget class="QPushButton" name="save_photo_btn_2">
                   <property name="maximumSize">

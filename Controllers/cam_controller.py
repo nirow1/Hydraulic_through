@@ -13,7 +13,7 @@ class CamController(QObject):
 
     def __init__(self, cam, cam_id):
         super().__init__()
-        self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(cam))
+        self.camera: pylon.InstantCamera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(cam))
         self.cam_id = cam_id
         self.camera.Open()
         self.set_frame_rate(2)
@@ -42,26 +42,29 @@ class CamController(QObject):
         except Exception as e:
             print(e)
 
-    def grab_frame(self, count):
+    def grab_frame(self, count: int):
         thread = Thread(target=self._grab_frame, args=[count])
         thread.start()
 
     def _grab_frame(self, count):
         try:
-            self.camera.StartGrabbing(1)
+            self.camera.StartGrabbing(pylon.GrabStrategy_OneByOne)
             image = pylon.PylonImage()
-            while True:
+
+            while self.camera.IsGrabbing():
                 grab_result = self.camera.RetrieveResult(2000, pylon.TimeoutHandling_Return)
                 if grab_result.GrabSucceeded():
                     image.AttachGrabResultBuffer(grab_result)
-                    filename = f"{self.save_path}/Photogrammetry/Photogrammetry_1/cam_{self.cam_id}_{count}.png"
+                    filename = f"{self.save_path}/Photogrammetry/Photogrammetry_1/cam_{self.cam_id}_{str(count)}.png"
                     image.Save(pylon.ImageFileFormat_Png, filename)
                     self.FRAME_SAVED.emit(self.cam_id)
+                    print(f"{self.cam_id} emited")
+                    grab_result.Release()
                     break
                 else:
                     print(f"Error grabbing image {self.cam_id}")
+                    grab_result.Release()
 
-            grab_result.Release()
             self.camera.StopGrabbing()
         except Exception as e:
             print(f"Error: {str(e)}")

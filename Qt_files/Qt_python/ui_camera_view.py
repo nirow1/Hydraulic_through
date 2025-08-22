@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'camera_viewkiapFM.ui'
+## Form generated from reading UI file 'camera_viewOqDtHd.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -130,6 +130,12 @@ class Ui_Form(object):
         self.horizontalLayout_3 = QHBoxLayout(self.widget_4)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.save_video_btn = QPushButton(self.widget_4)
+        self.save_video_btn.setObjectName(u"save_video_btn")
+        self.save_video_btn.setMaximumSize(QSize(120, 35))
+
+        self.horizontalLayout_3.addWidget(self.save_video_btn)
+
         self.save_photo_btn = QPushButton(self.widget_4)
         self.save_photo_btn.setObjectName(u"save_photo_btn")
         self.save_photo_btn.setMaximumSize(QSize(120, 35))
@@ -180,6 +186,12 @@ class Ui_Form(object):
         self.horizontalLayout_15 = QHBoxLayout(self.widget_19)
         self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
         self.horizontalLayout_15.setContentsMargins(0, 0, 0, 0)
+        self.save_video_btn_2 = QPushButton(self.widget_19)
+        self.save_video_btn_2.setObjectName(u"save_video_btn_2")
+        self.save_video_btn_2.setMaximumSize(QSize(120, 35))
+
+        self.horizontalLayout_15.addWidget(self.save_video_btn_2)
+
         self.save_photo_btn_2 = QPushButton(self.widget_19)
         self.save_photo_btn_2.setObjectName(u"save_photo_btn_2")
         self.save_photo_btn_2.setMaximumSize(QSize(120, 35))
@@ -317,8 +329,10 @@ class Ui_Form(object):
         self.cam_1_pg_btn.setText(QCoreApplication.translate("Form", u"1", None))
         self.cam_2_pg_btn.setText(QCoreApplication.translate("Form", u"2", None))
         self.cam_lbl_1.setText("")
+        self.save_video_btn.setText(QCoreApplication.translate("Form", u"Ulo\u017eit video", None))
         self.save_photo_btn.setText(QCoreApplication.translate("Form", u"Ulo\u017eit foto", None))
         self.cam_lbl_2.setText("")
+        self.save_video_btn_2.setText(QCoreApplication.translate("Form", u"Ulo\u017eit Video", None))
         self.save_photo_btn_2.setText(QCoreApplication.translate("Form", u"Ulo\u017eit foto", None))
         self.start_ortophoto_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt ortophoto ", None))
         self.set_pos_btn.setText(QCoreApplication.translate("Form", u"P\u0159esunout", None))
