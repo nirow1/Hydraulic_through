@@ -2,7 +2,6 @@ import time
 
 from threading import Thread
 from datetime import datetime
-
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow
 from Gui.Views.camera_view import CameraView
@@ -19,7 +18,6 @@ from Utils.csv_work import extract_data_from_csv, change_csv_status
 class MainWindow(QMainWindow):
     change_next_flow = Signal(list)
     update_tabs = Signal()
-    #todo: je třeba prozkoumat jaký z threadu se neuzavře a začne spotřebovávat ram
     def __init__(self):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
@@ -95,6 +93,7 @@ class MainWindow(QMainWindow):
     def _start_plans(self):
         self._change_button_state(False)
         Thread(target=self._iterate_flow_plans, daemon=True).start()
+        Thread(target=self._iterate_cam_plans).start()
 
     def _iterate_cam_plans(self):
         path = "./App_data/Test_plan/cam_plans.csv"
@@ -104,20 +103,26 @@ class MainWindow(QMainWindow):
                 target_time = datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S")
                 if row[3] == "0":
                     self._wait_until(target_time)
+                    print(f"setting drivers to: {row[1]}")
                     self.drivers.set_position(int(row[1]))
-                    time.sleep(11)
+                    time.sleep(12)
                     if row[2] == "foto 1":
                         self.camera_view.save_photo(1)
+                        print("photo 1 taken")
                         time.sleep(2)
                     if row[2] == "foto 2":
                         self.camera_view.save_photo(2)
+                        print("photo 2 taken")
                         time.sleep(2)
                     if row[2] == "video 1":
                         self.camera_view.save_video(1, blocking=True)
+                        print("video 1 taken")
                     if row[2] == "video 2":
                         self.camera_view.save_video(2, blocking=True)
+                        print(print("photo 2 taken"))
                     if row[2] == "orthophoto":
                         self.camera_view.make_orthophoto_image(blocking=True)
+                        print("orthopohoto taken")
                     if row[2] == "photogrm":
                         self.photogrammetry_view.start_photogrammetry(blocking=True)
                     change_csv_status(path, i, 3)
@@ -177,3 +182,5 @@ class MainWindow(QMainWindow):
 
     def on_app_exit(self):
         self.camera_view.disconnect()
+        self.photogrammetry_view.disconnect()
+        self.logo.disconnect()

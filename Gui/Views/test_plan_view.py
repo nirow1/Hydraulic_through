@@ -31,7 +31,6 @@ class TestPlanView(QWidget):
         self._bind_buttons()
         self._bind_emits()
 
-    #todo: pridat nahrát předešlý test
     def _initial_graphical_changes(self):
         self.ui.load_btn.hide()
         self.ui.send_through_le.setValidator(FloatValidator(2, 1))
@@ -61,11 +60,12 @@ class TestPlanView(QWidget):
         Thread(target=self._saving_thread).start()
 
     def _saving_thread(self):
+        save_path = f"{self.path}/zaznam_prutoku{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv"
         while self.saving:
             file_exists = os.path.exists(self.path)
             write_header = not file_exists or os.stat(self.path).st_size == 0
 
-            with open(self.path + "/zaznam_prutoku.csv", "a", newline="", encoding="utf-8") as file:
+            with open(save_path, "a", newline="", encoding="utf-8") as file:
                 writer = csv.writer(file, delimiter=";")
                 if write_header:
                     writer.writerow(["Čas", "Průtok"])

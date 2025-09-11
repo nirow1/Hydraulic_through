@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'camera_viewOqDtHd.ui'
+## Form generated from reading UI file 'camera_viewCrrXSe.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -15,9 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLineEdit,
-    QProgressBar, QPushButton, QSizePolicy, QStackedWidget,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QHBoxLayout,
+    QLabel, QLineEdit, QProgressBar, QPushButton,
+    QSizePolicy, QStackedWidget, QVBoxLayout, QWidget)
+
+from Gui.Custom_widgets.toggle import AnimatedToggle
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -51,12 +53,8 @@ class Ui_Form(object):
 "    background-color: #729D1F;\n"
 "}\n"
 "\n"
-"#stackedWidget, #widget_6, #widget_10{\n"
+"#stackedWidget, #widget_10{\n"
 "	border: 1px solid #ccc;\n"
-"}\n"
-"\n"
-"#widget_165{\n"
-"background-color: #ccc;\n"
 "}\n"
 "        \n"
 "QScrollBar::sub-line:vertical\n"
@@ -88,6 +86,12 @@ class Ui_Form(object):
 
         self.horizontalLayout_4.addWidget(self.cam_1_pg_btn)
 
+        self.reset_camera_connection_btn = QPushButton(self.widget_10)
+        self.reset_camera_connection_btn.setObjectName(u"reset_camera_connection_btn")
+        self.reset_camera_connection_btn.setMaximumSize(QSize(120, 35))
+
+        self.horizontalLayout_4.addWidget(self.reset_camera_connection_btn)
+
         self.cam_2_pg_btn = QPushButton(self.widget_10)
         self.cam_2_pg_btn.setObjectName(u"cam_2_pg_btn")
         self.cam_2_pg_btn.setMaximumSize(QSize(35, 35))
@@ -97,7 +101,12 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.widget_10)
 
-        self.stackedWidget = QStackedWidget(Form)
+        self.widget = QWidget(Form)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout_8 = QHBoxLayout(self.widget)
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.horizontalLayout_8.setContentsMargins(1, 1, 1, 1)
+        self.stackedWidget = QStackedWidget(self.widget)
         self.stackedWidget.setObjectName(u"stackedWidget")
         self.cam_1_pg = QWidget()
         self.cam_1_pg.setObjectName(u"cam_1_pg")
@@ -209,7 +218,39 @@ class Ui_Form(object):
 
         self.stackedWidget.addWidget(self.cam_2_pg)
 
-        self.verticalLayout.addWidget(self.stackedWidget)
+        self.horizontalLayout_8.addWidget(self.stackedWidget)
+
+        self.widget_2 = QWidget(self.widget)
+        self.widget_2.setObjectName(u"widget_2")
+        self.widget_2.setMinimumSize(QSize(80, 0))
+        self.horizontalLayout_9 = QHBoxLayout(self.widget_2)
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.widget_ = QWidget(self.widget_2)
+        self.widget_.setObjectName(u"widget_")
+        self.widget_.setMaximumSize(QSize(200, 250))
+        self.gridLayout = QGridLayout(self.widget_)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(1, 1, 1, 1)
+        self.right_btn = QPushButton(self.widget_)
+        self.right_btn.setObjectName(u"right_btn")
+        self.right_btn.setMaximumSize(QSize(40, 40))
+
+        self.gridLayout.addWidget(self.right_btn, 0, 0, 1, 1)
+
+        self.left_btn = QPushButton(self.widget_)
+        self.left_btn.setObjectName(u"left_btn")
+        self.left_btn.setMaximumSize(QSize(40, 40))
+
+        self.gridLayout.addWidget(self.left_btn, 1, 0, 1, 1)
+
+
+        self.horizontalLayout_9.addWidget(self.widget_)
+
+
+        self.horizontalLayout_8.addWidget(self.widget_2)
+
+
+        self.verticalLayout.addWidget(self.widget)
 
         self.widget_8 = QWidget(Form)
         self.widget_8.setObjectName(u"widget_8")
@@ -217,11 +258,53 @@ class Ui_Form(object):
         self.horizontalLayout_7 = QHBoxLayout(self.widget_8)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
         self.horizontalLayout_7.setContentsMargins(3, 3, 3, 3)
-        self.start_ortophoto_btn = QPushButton(self.widget_8)
+        self.widget_5 = QWidget(self.widget_8)
+        self.widget_5.setObjectName(u"widget_5")
+        self.widget_5.setMaximumSize(QSize(450, 16777215))
+        self.horizontalLayout_2 = QHBoxLayout(self.widget_5)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.widget_6 = QWidget(self.widget_5)
+        self.widget_6.setObjectName(u"widget_6")
+        self.widget_6.setMaximumSize(QSize(150, 16777215))
+        self.horizontalLayout_11 = QHBoxLayout(self.widget_6)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
+        self.label_2 = QLabel(self.widget_6)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMaximumSize(QSize(20, 16777215))
+
+        self.horizontalLayout_11.addWidget(self.label_2)
+
+        self.objective_chb = AnimatedToggle(self.widget_6)
+        self.objective_chb.setObjectName(u"objective_chb")
+        self.objective_chb.setMaximumSize(QSize(60, 16777215))
+
+        self.horizontalLayout_11.addWidget(self.objective_chb)
+
+        self.label_3 = QLabel(self.widget_6)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setMaximumSize(QSize(25, 16777215))
+
+        self.horizontalLayout_11.addWidget(self.label_3)
+
+
+        self.horizontalLayout_2.addWidget(self.widget_6)
+
+        self.orthophoto_quality_cb = QComboBox(self.widget_5)
+        self.orthophoto_quality_cb.setObjectName(u"orthophoto_quality_cb")
+        self.orthophoto_quality_cb.setMaximumSize(QSize(100, 16777215))
+
+        self.horizontalLayout_2.addWidget(self.orthophoto_quality_cb)
+
+        self.start_ortophoto_btn = QPushButton(self.widget_5)
         self.start_ortophoto_btn.setObjectName(u"start_ortophoto_btn")
         self.start_ortophoto_btn.setMaximumSize(QSize(120, 35))
 
-        self.horizontalLayout_7.addWidget(self.start_ortophoto_btn)
+        self.horizontalLayout_2.addWidget(self.start_ortophoto_btn)
+
+
+        self.horizontalLayout_7.addWidget(self.widget_5)
 
         self.widget_3 = QWidget(self.widget_8)
         self.widget_3.setObjectName(u"widget_3")
@@ -244,27 +327,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_7.addWidget(self.widget_3)
 
-        self.widget_ = QWidget(self.widget_8)
-        self.widget_.setObjectName(u"widget_")
-        self.widget_.setMaximumSize(QSize(200, 80))
-        self.horizontalLayout_2 = QHBoxLayout(self.widget_)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(1, 1, 1, 1)
-        self.left_btn = QPushButton(self.widget_)
-        self.left_btn.setObjectName(u"left_btn")
-        self.left_btn.setMaximumSize(QSize(40, 40))
-
-        self.horizontalLayout_2.addWidget(self.left_btn)
-
-        self.right_btn = QPushButton(self.widget_)
-        self.right_btn.setObjectName(u"right_btn")
-        self.right_btn.setMaximumSize(QSize(40, 40))
-
-        self.horizontalLayout_2.addWidget(self.right_btn)
-
-
-        self.horizontalLayout_7.addWidget(self.widget_)
-
 
         self.verticalLayout.addWidget(self.widget_8)
 
@@ -272,8 +334,8 @@ class Ui_Form(object):
         self.widget_29.setObjectName(u"widget_29")
         sizePolicy.setHeightForWidth(self.widget_29.sizePolicy().hasHeightForWidth())
         self.widget_29.setSizePolicy(sizePolicy)
-        self.widget_29.setMinimumSize(QSize(0, 100))
-        self.widget_29.setMaximumSize(QSize(16777215, 110))
+        self.widget_29.setMinimumSize(QSize(0, 90))
+        self.widget_29.setMaximumSize(QSize(16777215, 100))
         self.horizontalLayout = QHBoxLayout(self.widget_29)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(-1, 5, -1, 5)
@@ -327,6 +389,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.cam_1_pg_btn.setText(QCoreApplication.translate("Form", u"1", None))
+        self.reset_camera_connection_btn.setText(QCoreApplication.translate("Form", u"obnovit kamery", None))
         self.cam_2_pg_btn.setText(QCoreApplication.translate("Form", u"2", None))
         self.cam_lbl_1.setText("")
         self.save_video_btn.setText(QCoreApplication.translate("Form", u"Ulo\u017eit video", None))
@@ -334,10 +397,13 @@ class Ui_Form(object):
         self.cam_lbl_2.setText("")
         self.save_video_btn_2.setText(QCoreApplication.translate("Form", u"Ulo\u017eit Video", None))
         self.save_photo_btn_2.setText(QCoreApplication.translate("Form", u"Ulo\u017eit foto", None))
+        self.right_btn.setText("")
+        self.left_btn.setText("")
+        self.label_2.setText(QCoreApplication.translate("Form", u"8x", None))
+        self.objective_chb.setText("")
+        self.label_3.setText(QCoreApplication.translate("Form", u"12x", None))
         self.start_ortophoto_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt ortophoto ", None))
         self.set_pos_btn.setText(QCoreApplication.translate("Form", u"P\u0159esunout", None))
-        self.left_btn.setText("")
-        self.right_btn.setText("")
         self.label.setText(QCoreApplication.translate("Form", u"Ortophoto:", None))
         self.currnet_action_lbl.setText("")
     # retranslateUi

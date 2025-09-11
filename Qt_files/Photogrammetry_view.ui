@@ -165,15 +165,32 @@ background-color: #ccc;
           <number>0</number>
          </property>
          <item>
+          <widget class="QWidget" name="widget" native="true">
+           <property name="maximumSize">
+            <size>
+             <width>250</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label">
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>164</width>
              <height>30</height>
             </size>
            </property>
            <property name="text">
-            <string>Průběh procesu...</string>
+            <string>Průběh fotogrammetrie:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="progress_lbl">
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>

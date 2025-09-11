@@ -50,8 +50,7 @@ class LogoController(QThread):
         with self.lock:
             try:
                 ushort_in_bytes = struct.pack('>H', request)
-                print(f"{request}")
-                #self.logo.db_write(0, pos, bytearray(ushort_in_bytes))
+                self.logo.db_write(0, pos, bytearray(ushort_in_bytes))
             except Exception as e:
                 print(f"[ERROR] write_logo_ushort: {e}")
 

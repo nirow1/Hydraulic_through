@@ -18,14 +18,14 @@ class PhtgrCamController(QObject):
         Thread(target=self._initialize_cameras).start()
 
     def _bind_emits(self):
+        """if len(self.cam_list) != 0:
+            self.cam_list[0].FRAME_SAVED.connect(self._change_cam_status)
+            self.cam_list[1].FRAME_SAVED.connect(self._change_cam_status)
+            self.cam_list[2].FRAME_SAVED.connect(self._change_cam_status)
+            self.cam_list[3].FRAME_SAVED.connect(self._change_cam_status)"""
 
-        self.cam_list[0].FRAME_SAVED.connect(self._change_cam_status)
-        self.cam_list[1].FRAME_SAVED.connect(self._change_cam_status)
-        self.cam_list[2].FRAME_SAVED.connect(self._change_cam_status)
-        self.cam_list[3].FRAME_SAVED.connect(self._change_cam_status)
-
-        """for cam in self.cam_list:
-            cam.FRAME_SAVED.connect(partial(self._change_cam_status, cam.cam_id))"""
+        for cam in self.cam_list:
+            cam.FRAME_SAVED.connect(partial(self._change_cam_status, cam.cam_id))
 
     def _initialize_cameras(self):
         cam_list = pylon.TlFactory.GetInstance().EnumerateDevices()

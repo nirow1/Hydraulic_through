@@ -52,7 +52,7 @@ class CamController(QObject):
             image = pylon.PylonImage()
 
             while self.camera.IsGrabbing():
-                grab_result = self.camera.RetrieveResult(2000, pylon.TimeoutHandling_Return)
+                grab_result = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_Return)
                 if grab_result.GrabSucceeded():
                     image.AttachGrabResultBuffer(grab_result)
                     filename = f"{self.save_path}/Photogrammetry/Photogrammetry_1/cam_{self.cam_id}_{str(count)}.png"

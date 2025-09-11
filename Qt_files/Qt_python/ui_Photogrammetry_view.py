@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Photogrammetry_viewyatJvw.ui'
+## Form generated from reading UI file 'Photogrammetry_viewuVhOtA.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -107,11 +107,22 @@ class Ui_Form(object):
         self.horizontalLayout_2 = QHBoxLayout(self.widget_5)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.widget = QWidget(self.widget_5)
+        self.widget.setObjectName(u"widget")
+        self.widget.setMaximumSize(QSize(250, 16777215))
+
+        self.horizontalLayout_2.addWidget(self.widget)
+
         self.label = QLabel(self.widget_5)
         self.label.setObjectName(u"label")
-        self.label.setMaximumSize(QSize(120, 30))
+        self.label.setMaximumSize(QSize(164, 30))
 
         self.horizontalLayout_2.addWidget(self.label)
+
+        self.progress_lbl = QLabel(self.widget_5)
+        self.progress_lbl.setObjectName(u"progress_lbl")
+
+        self.horizontalLayout_2.addWidget(self.progress_lbl)
 
 
         self.verticalLayout_2.addWidget(self.widget_5)
@@ -205,7 +216,8 @@ class Ui_Form(object):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.start_new_phtgrm_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt photogrammetrii", None))
         self.continue_phtgrm_btn.setText(QCoreApplication.translate("Form", u"pokra\u010dovat", None))
-        self.label.setText(QCoreApplication.translate("Form", u"Pr\u016fb\u011bh procesu...", None))
+        self.label.setText(QCoreApplication.translate("Form", u"Pr\u016fb\u011bh fotogrammetrie:", None))
+        self.progress_lbl.setText("")
         self.label_2.setText(QCoreApplication.translate("Form", u"Napl\u00e1novan\u00e9 photogrametrie", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Datum", None));

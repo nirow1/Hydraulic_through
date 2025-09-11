@@ -46,8 +46,8 @@ class DriverController(QThread):
             pos = pos * 512
             disassembled_int = [(pos >> 16) & 0xFFFF, pos & 0xFFFF]
 
-            self.client.write_registers(0x6249, disassembled_int, slave=slave)
-            self.client.write_registers(24578, [25], slave=slave)
+            self.client.write_registers(0x6249, disassembled_int, device_id=slave)
+            self.client.write_registers(24578, [25], device_id=slave)
 
     def _send_step_command(self):
         if self.connected:
@@ -76,14 +76,14 @@ class DriverController(QThread):
 
     def _jog_to_side(self, side: int, slave: int=1):
         while not self.stop_jog_cycle:
-            self.client.write_register(6145, side, slave=slave)
+            self.client.write_register(6145, side, device_id=slave)
             time.sleep(0.2)
         self.stop_jog_cycle = False
 
     def stop_jog(self):
         if self.connected:
             self.stop_jog_cycle = True
-            self.client.write_register(6146, 1, slave=1)
+            self.client.write_register(6146, 1, device_id=1)
 
     def move_to_beginning(self):
         if self.connected:

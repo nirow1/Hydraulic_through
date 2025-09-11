@@ -1,16 +1,24 @@
 import os
 import csv
 import time
-from threading import Thread
+import Metashape
 
+from threading import Thread
+from PySide6.QtCore import Signal
 from Controllers.phtgr_cam_controller import PhtgrCamController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
 from Controllers.driver_controller import DriverController
-from Utils.csv_work import change_csv_status
 from PySide6.QtWidgets import QWidget
 
 
 class PhotogrammetryView(QWidget):
+    aligning_photos = Signal()
+    creating_point_cloud = Signal()
+    creating_model = Signal()
+    building_texture = Signal()
+    progress = Signal(float)
+
+    #todo: přidat do gui nastavení photogrammetrie
     def __init__(self, drivers):
         QWidget.__init__(self)
         self.ui = Ui_Form()
@@ -22,6 +30,8 @@ class PhotogrammetryView(QWidget):
         self.current_working_id = 0
         self.path: str = ""
         self.cams_ready = False
+        self.doc = Metashape.Document()
+        self.chunk = self.doc.addChunk()
 
         self._initial_graphical_changes()
         self._bind_buttons()
@@ -30,11 +40,20 @@ class PhotogrammetryView(QWidget):
     def _initial_graphical_changes(self):
         pass
 
+    #todo: pokud bude ortophoto naplánovaná při photogrammetrii je možnost jí udělat v Metashape
+    #todo: je třeba udělat nějaký check, jestli fotogrammetrie běží, aby se nestalo, že se jí pokusím zapnout 2x
+    #todo: přidat přehled o časové náročnosti
+    #todo: dodělat databázi photogrammetrie
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(self.start_photogrammetry)
 
     def _bind_emits(self):
         self.cameras.CAMS_READY.connect(lambda: self._change_cams_state(True))
+        self.aligning_photos.connect(lambda: self.ui.progress_lbl.setText("Aligning photos"))
+        self.creating_point_cloud.connect(lambda: self.ui.progress_lbl.setText("Creating point could"))
+        self.creating_model.connect(lambda: self.ui.progress_lbl.setText("Creating model"))
+        self.building_texture.connect(lambda: self.ui.progress_lbl.setText("Building texture"))
+        self.progress.connect(self._update_progressbar)
 
     def _change_cams_state(self, state: bool):
         self.cams_ready = state
@@ -43,9 +62,11 @@ class PhotogrammetryView(QWidget):
         if blocking:
             self._create_directory()
             self._create_photogrammetry_photos()
+            self._create_photogrammetry_model()
         else:
             self._create_directory()
             Thread(target=self._create_photogrammetry_photos).start()
+            Thread(target=self._create_photogrammetry_model).start()
 
     def _create_directory(self):
         path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_working_id}"
@@ -61,10 +82,61 @@ class PhotogrammetryView(QWidget):
             while not self.cams_ready:
                 time.sleep(0.05)
             self.drivers.move_step()
-        change_csv_status("./App_data/Test_plan/photogrammetry.csv", self.current_working_id, 1)
+        #change_csv_status("./App_data/cam_plans/photogrammetry.csv", self.current_working_id, 1)
+
+    def _create_photogrammetry_model(self):
+        os.makedirs(self.path, exist_ok=True)
+        self._align_photos()
+        self._create_point_cloud()
+        self._create_model()
+        self.build_texture()
+        self.export_results()
+        self.doc.remove(self.chunk)
+        self.chunk = None
+
+    def _align_photos(self):
+        self.aligning_photos.emit()
+        image_folder = "./App_data/Photogrammetry/Photogrammetry_1"
+        photos = [os.path.join(image_folder, p) for p in os.listdir(image_folder) if p.endswith(".png")]
+        self.chunk.addPhotos(photos)
+
+        #downscale is accuracy
+        self.chunk.matchPhotos(downscale=1,  keypoint_limit=40000, tiepoint_limit=10000, progress=self.progress_callback)
+        self.chunk.alignCameras()
+        self.doc.save(os.path.join(self.path, "project_after_alignment.psx"))
+
+    def _create_point_cloud(self):
+        self.creating_point_cloud.emit()
+        self.chunk.buildDepthMaps(downscale=2, filter_mode=Metashape.MildFiltering)
+        self.chunk.buildPointCloud()
+        self.doc.save(os.path.join(self.path, "project_after_pointcloud.psx"))
+
+    def _create_model(self):
+        self.creating_model.emit()
+        self.chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.MediumFaceCount)
+        self.doc.save(os.path.join(self.path, "project_after_model.psx"))
+
+    def build_texture(self):
+        self.building_texture.emit()
+        self.chunk.buildUV(mapping_mode=Metashape.GenericMapping)
+        self.chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=4096)
+        self.doc.save(os.path.join(self.path, "project_after_texture.psx"))
+
+    def export_results(self):
+        os.makedirs(self.path, exist_ok=True)
+
+        # Export to STL
+        self.chunk.exportModel(
+            path=os.path.join(self.path, "model.stl"),
+            binary=True,  # True = binary STL (smaller file size), False = ASCII STL
+            format=Metashape.ModelFormatSTL
+        )
+
+    def progress_callback(self, info):
+        self.progress.emit(info)
 
     def _create_photogrammetry_record(self):
-        file_path = "./App_data/Test_plan/photogrammetry.csv"
+        file_path = "./App_data/cam_plans/photogrammetry.csv"
 
         with open(file_path, mode="r+", newline="") as f:
             reader = list(csv.reader(f))
@@ -97,5 +169,11 @@ class PhotogrammetryView(QWidget):
 
         return last_id
 
+    def _update_progressbar(self, value):
+        self.ui.progressBar.setValue(round(value, 1))
+
     def set_path(self, path):
-        self.path = path
+        self.path = os.path.join(path, "fotogrametrie")
+
+    def disconnect(self):
+        self.cameras.stop_recording()
