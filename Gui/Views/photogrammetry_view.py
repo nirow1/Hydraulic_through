@@ -75,13 +75,13 @@ class PhotogrammetryView(QWidget):
     def _create_photogrammetry_photos(self):
         self.drivers.move_to_beginning()
         time.sleep(11)
-        for i in range(124):
+        for i in range(122):
             print(f"foto:{i}")
             self._change_cams_state(False)
             self.cameras.acquire_frames(i)
             while not self.cams_ready:
                 time.sleep(0.05)
-            self.drivers.move_step()
+            self.drivers.move_step(122)
         #change_csv_status("./App_data/cam_plans/photogrammetry.csv", self.current_working_id, 1)
 
     def _create_photogrammetry_model(self):

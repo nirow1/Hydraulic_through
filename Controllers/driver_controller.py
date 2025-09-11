@@ -42,6 +42,7 @@ class DriverController(QThread):
                 self.client.write_register(15, 1)
 
     def set_position(self, pos: int, slave: int = 1):
+        #limit is 245cm
         if self.connected:
             pos = pos * 512
             disassembled_int = [(pos >> 16) & 0xFFFF, pos & 0xFFFF]
@@ -53,16 +54,16 @@ class DriverController(QThread):
         if self.connected:
             self.client.write_registers(24578, [17])
 
-    def move_step(self):
-        thread = Thread(target=self._move_step)
+    def move_step(self, req_photos):
+        thread = Thread(target=self._move_step, args=[req_photos])
         thread.start()
 
-    def _move_step(self):
-        self._send_step_command()
+    def _move_step(self, req_photos):
+        self.set_position(self.step_number)
+        self.step_number += int(245/req_photos)
         time.sleep(.5)
 
-        self.step_number += 1
-        if self.step_number == 124:
+        if self.step_number == 245-245 % req_photos:
             self.step_number = 0
             self.move_to_beginning()
 

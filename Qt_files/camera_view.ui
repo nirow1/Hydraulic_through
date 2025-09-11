@@ -425,8 +425,8 @@ QScrollBar::add-line:vertical
             <property name="bottomMargin">
              <number>1</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QPushButton" name="right_btn">
+            <item row="1" column="0">
+             <widget class="QPushButton" name="down_btn">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -438,8 +438,8 @@ QScrollBar::add-line:vertical
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="left_btn">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="up_btn">
               <property name="maximumSize">
                <size>
                 <width>40</width>

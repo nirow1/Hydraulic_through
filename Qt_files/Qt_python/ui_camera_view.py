@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'camera_viewCrrXSe.ui'
+## Form generated from reading UI file 'camera_viewcXQIxi.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -231,17 +231,17 @@ class Ui_Form(object):
         self.gridLayout = QGridLayout(self.widget_)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(1, 1, 1, 1)
-        self.right_btn = QPushButton(self.widget_)
-        self.right_btn.setObjectName(u"right_btn")
-        self.right_btn.setMaximumSize(QSize(40, 40))
+        self.down_btn = QPushButton(self.widget_)
+        self.down_btn.setObjectName(u"down_btn")
+        self.down_btn.setMaximumSize(QSize(40, 40))
 
-        self.gridLayout.addWidget(self.right_btn, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.down_btn, 1, 0, 1, 1)
 
-        self.left_btn = QPushButton(self.widget_)
-        self.left_btn.setObjectName(u"left_btn")
-        self.left_btn.setMaximumSize(QSize(40, 40))
+        self.up_btn = QPushButton(self.widget_)
+        self.up_btn.setObjectName(u"up_btn")
+        self.up_btn.setMaximumSize(QSize(40, 40))
 
-        self.gridLayout.addWidget(self.left_btn, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.up_btn, 0, 0, 1, 1)
 
 
         self.horizontalLayout_9.addWidget(self.widget_)
@@ -397,8 +397,8 @@ class Ui_Form(object):
         self.cam_lbl_2.setText("")
         self.save_video_btn_2.setText(QCoreApplication.translate("Form", u"Ulo\u017eit Video", None))
         self.save_photo_btn_2.setText(QCoreApplication.translate("Form", u"Ulo\u017eit foto", None))
-        self.right_btn.setText("")
-        self.left_btn.setText("")
+        self.down_btn.setText("")
+        self.up_btn.setText("")
         self.label_2.setText(QCoreApplication.translate("Form", u"8x", None))
         self.objective_chb.setText("")
         self.label_3.setText(QCoreApplication.translate("Form", u"12x", None))

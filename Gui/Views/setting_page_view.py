@@ -54,7 +54,7 @@ class SettingsView(QWidget):
 
     def _load_xls_data(self):
         workbook = openpyxl.load_workbook(self.xls_path[0])
-        sheet = workbook["List 1"]
+        sheet = workbook.worksheets[0]
 
         rows = sheet.max_row - 1
         self.ui.tableWidget.setRowCount(rows)
@@ -73,11 +73,13 @@ class SettingsView(QWidget):
 
     def _create_save_path(self):
         name = "/vysledky_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
-        path = self.ui.set_saving_path_le.text() + name
-        os.makedirs(path)
+        path = self.ui.set_saving_path_le.text() if self.ui.set_saving_path_le.text() != "" else "./"
 
-        self.path = path
-        self.SAVE_PATH.emit(path)
+        full_path = path + name
+        os.makedirs(full_path)
+
+        self.path = full_path
+        self.SAVE_PATH.emit(full_path)
 
     def _save_process_dates(self):
         test_plan_settings = [
@@ -88,19 +90,21 @@ class SettingsView(QWidget):
             for row in range(self.ui.tableWidget.rowCount())
         ]
 
-        self._delete_data_from_files()
+        self._create_flow_plans_tab("./App_data/Test_plan/planed_flow.csv", test_plan_settings)
+        self._create_flow_plans_tab(self.path + "/flow_plans.csv", test_plan_settings)
 
-        with open("./App_data/Test_plan/planed_flow.csv", "a", newline="") as flow_file:
+        self._create_cam_plans_tab("./App_data/Test_plan/cam_plans.csv", test_plan_settings)
+        self._create_cam_plans_tab(self.path + "/cam_plans.csv", test_plan_settings)
+
+    def _create_flow_plans_tab(self, path, plan):
+        with open(path, "w", newline="") as flow_file:
             writer = csv.writer(flow_file)
-            for row in test_plan_settings:
+            for row in plan:
                 if row[3] is not None and row[3] != "":
                     writer.writerow([self.create_datetime(row), row[3], 0])
 
-        self._create_cam_plans_tab("./App_data/Test_plan/cam_plans.csv", test_plan_settings)
-        self._create_cam_plans_tab(self.path, test_plan_settings)
-
     def _create_cam_plans_tab(self, path: str, plan):
-        with open(path, "a", newline="") as cam_file:
+        with open(path, "w", newline="") as cam_file:
             writer = csv.writer(cam_file)
             for row in plan:
                 tasks = [
@@ -114,13 +118,6 @@ class SettingsView(QWidget):
                 for label, condition, value in tasks:
                     if condition:
                         writer.writerow([self.create_datetime(row), value, label, 0])
-
-
-    def _delete_data_from_files(self):
-        file_names = ["./App_data/Test_plan/planed_flow.csv",
-                      "./App_data/Test_plan/cam_plans.csv"]
-        for name in file_names:
-            open(name, mode='w', newline='').close()
 
     def _resize_table_widget(self):
         for i in range(6):

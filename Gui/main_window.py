@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
         self._bind_emits()
         self._set_save_path("./")
 
+    #todo: přidat zelený lbl, že testový plán běží
     def setup_views(self):
         self.ui.stackedWidget.addWidget(self.settings_view)
         self.ui.stackedWidget.addWidget(self.camera_view)
@@ -81,8 +82,6 @@ class MainWindow(QMainWindow):
         self.update_tabs.connect(self.test_plan_view.update_tabs)
 
     def _set_save_path(self, path):
-        if path == "":
-            path = "./"
         self.camera_view.set_path(path)
         self.photogrammetry_view.set_path(path)
         self.test_plan_view.set_path(path)

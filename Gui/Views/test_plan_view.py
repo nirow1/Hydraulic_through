@@ -31,6 +31,7 @@ class TestPlanView(QWidget):
         self._bind_buttons()
         self._bind_emits()
 
+    #todo: přidat sekundy do tabulky
     def _initial_graphical_changes(self):
         self.ui.load_btn.hide()
         self.ui.send_through_le.setValidator(FloatValidator(2, 1))
@@ -60,7 +61,8 @@ class TestPlanView(QWidget):
         Thread(target=self._saving_thread).start()
 
     def _saving_thread(self):
-        save_path = f"{self.path}/zaznam_prutoku{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv"
+        save_path = f"{self.path}/zaznam_prutoku{datetime.now().strftime('%Y-%m-%d_%H-%M')}.csv"
+
         while self.saving:
             file_exists = os.path.exists(self.path)
             write_header = not file_exists or os.stat(self.path).st_size == 0
