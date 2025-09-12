@@ -112,8 +112,8 @@ class SettingsView(QWidget):
                     ("foto 2", row[7] != "", row[7]),
                     ("video 1", row[8] != "", row[8]),
                     ("video 2", row[9] != "", row[9]),
-                    ("orthophoto", row[5] == "1", 0),
-                    ("photogrm", row[4] == "1", 0),
+                    ("orthophoto", row[5] != "", row[5]),
+                    ("photogrm", row[4] != "", row[4]),
                 ]
                 for label, condition, value in tasks:
                     if condition:

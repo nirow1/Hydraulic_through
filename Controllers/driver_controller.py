@@ -61,11 +61,6 @@ class DriverController(QThread):
     def _move_step(self, req_photos):
         self.set_position(self.step_number)
         self.step_number += int(245/req_photos)
-        time.sleep(.5)
-
-        if self.step_number == 245-245 % req_photos:
-            self.step_number = 0
-            self.move_to_beginning()
 
     def start_jog(self, left: bool):
         if self.connected:

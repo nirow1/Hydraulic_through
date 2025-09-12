@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
                         self.camera_view.save_video(2, blocking=True)
                         print(print("photo 2 taken"))
                     if row[2] == "orthophoto":
-                        self.camera_view.make_orthophoto_image(blocking=True)
+                        self.camera_view.make_orthophoto_image(quality=row[1],blocking=True)
                         print("orthopohoto taken")
                     if row[2] == "photogrm":
                         self.photogrammetry_view.start_photogrammetry(blocking=True)
@@ -154,9 +154,6 @@ class MainWindow(QMainWindow):
     def _change_flow(self, flow: float):
         flow_voltage = int(flow * 10)
         self.logo.write_logo_ushort(1, flow_voltage)
-
-    def _start_orthophoto(self):
-        self.camera_view.make_orthophoto_image()
 
     def _start_photogrammetry(self):
         self.photogrammetry_view.start_photogrammetry()

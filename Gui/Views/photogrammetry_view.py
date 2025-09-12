@@ -1,7 +1,7 @@
 import os
 import csv
 import time
-import Metashape
+#import Metashape
 
 from threading import Thread
 from PySide6.QtCore import Signal
@@ -30,8 +30,8 @@ class PhotogrammetryView(QWidget):
         self.current_working_id = 0
         self.path: str = ""
         self.cams_ready = False
-        self.doc = Metashape.Document()
-        self.chunk = self.doc.addChunk()
+        #self.doc = Metashape.Document()
+        #self.chunk = self.doc.addChunk()
 
         self._initial_graphical_changes()
         self._bind_buttons()

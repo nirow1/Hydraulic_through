@@ -1,5 +1,3 @@
-import math
-from datetime import datetime
 
 import numpy as np
 import time
@@ -7,19 +5,19 @@ import cv2
 import os
 import re
 
-from PySide6.QtGui import QIcon, QPixmap, QImage
-from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Signal
-from threading import Thread
-from pypylon import pylon
-
 from Controllers.driver_controller import DriverController
 from Qt_files.Qt_python.ui_camera_view import Ui_Form
 from Controllers.cam_controller import CamController
+from PySide6.QtGui import QIcon, QPixmap, QImage
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Signal
+from datetime import datetime
+from threading import Thread
+from pypylon import pylon
 
 
 class CameraView(QWidget):
-    progress_signal = Signal(int)
+    progress_signal = Signal( int, int)
     _orthophoto_done = Signal()
     set_current_action_lbl = Signal(str)
 
@@ -39,14 +37,13 @@ class CameraView(QWidget):
 
         self.progress = 0
         self.path = ""
-        self.strip_height = 88
+        self.op_quality = 1
+        self.quality_dic = {"Vysoká" : 1, "Střední" : 2, "Nízká" : 3}
 
         self._initial_graphical_changes()
         self._bind_camera_buttons()
         self._bind_emits()
 
-    #todo: přidat indikaci dělaání videa
-    #todo: přidat kvalitu orthophoto a s tím propočítat velikost pásu
     def _initial_graphical_changes(self):
         self.ui.cam_lbl_1.setPixmap(QPixmap("./App_data/ico.png"))
         self.ui.cam_lbl_1.setScaledContents(True)
@@ -75,13 +72,11 @@ class CameraView(QWidget):
         self.ui.save_video_btn.clicked.connect(lambda: self.save_video(1))
         self.ui.save_video_btn_2.clicked.connect(lambda: self.save_video(2))
 
-        self.ui.objective_chb.stateChanged.connect(self._changed_objective)
-
         self.ui.set_pos_btn.clicked.connect(lambda: self.drivers.set_position(int(self.ui.set_pos_le.text())))
 
         self.ui.reset_camera_connection_btn.clicked.connect(self.connect_clicked)
 
-        self.ui.start_ortophoto_btn.clicked.connect(self.make_orthophoto_image)
+        self.ui.start_ortophoto_btn.clicked.connect(lambda: self.make_orthophoto_image())
 
     def _bind_emits(self):
         self.progress_signal.connect(self._update_progressbar)
@@ -122,14 +117,15 @@ class CameraView(QWidget):
 
         self.connecting_cameras = False
 
-    def make_orthophoto_image(self, blocking=False):
+    def make_orthophoto_image(self,quality = None, blocking=False):
         self._change_buttons_state(False)
         self.set_current_action_lbl.emit("Pohyb kamer na pozici")
+        self.op_quality = quality if quality is not None else self.quality_dic[self.ui.orthophoto_quality_cb.currentText()]
 
         if blocking:
             self._create_photos()
         else:
-            photo_creation_thread = Thread(target=self._create_photos)#self._create_photos)
+            photo_creation_thread = Thread(target=self._process_orthophoto_image)#self._create_photos)
             photo_creation_thread.start()
 
     def _create_photos(self):
@@ -138,22 +134,19 @@ class CameraView(QWidget):
         self.set_current_action_lbl.emit("Sbírání fotek...")
         self.cam.set_frame_rate(4)
 
-        quality = self.ui.orthophoto_quality_cb.currentText()
-        wait = 2
-        if quality == "Vysoká":
+        if self.op_quality == 1:
             photo_number = 122
-        elif quality == "Střední":
+        elif self.op_quality == 2:
             photo_number = 61
         else:
             photo_number = 20
-            wait = 3
 
         for i in range(photo_number):
             self.drivers.move_step(photo_number)
-            #todo: zkontrolovat čekání
-            time.sleep(wait)
+
+            time.sleep(2)
             cv2.imwrite(f"./App_data/Orthophoto/image_{i}.png", self.current_img_1)
-            self.progress_signal.emit(i)
+            self.progress_signal.emit(i, photo_number)
 
         self.cam.set_frame_rate(2)
         self._process_orthophoto_image()
@@ -177,7 +170,6 @@ class CameraView(QWidget):
         else:
             Thread(target=self._save_video, args=[cam_id]).start()
 
-    #todo: přidat progress bar u videa
     def _save_video(self, cam_id: int):
         dir_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.set_current_action_lbl.emit("Tvorba videa...")
@@ -186,8 +178,8 @@ class CameraView(QWidget):
             print(i)
             time.sleep(0.5)
             self._save_photo(cam_id, f"video_{cam_id}_{dir_time}/snimek")
+            self.progress_signal.emit(i, 90)
 
-    #todo: vymazání fotek po zpracování orthophoto
     def _process_orthophoto_image(self):
         image_folder = "./App_data/Orthophoto"
         self.set_current_action_lbl.emit("Zpracování fotky...")
@@ -196,12 +188,12 @@ class CameraView(QWidget):
         strips = []
         for i, img_file in enumerate(image_files[::-1]):
             img_path = os.path.join(image_folder, img_file)
-            self.progress_signal.emit(i)
+            self.progress_signal.emit(i, len(image_files))
             img = cv2.imread(img_path)
 
             # Define cropping parameters (adjust height fraction as needed)
             height, width = img.shape[:2]
-            self.strip_height = 44 # 88 for 12x camera
+            self.strip_height = self._get_strip_height()
             cropped_img = img[(height // 2) - (self.strip_height // 2): (height // 2) + (self.strip_height // 2), :]
 
             strips.append(cropped_img)
@@ -213,8 +205,14 @@ class CameraView(QWidget):
         name = "Orthophoto_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
         cv2.imwrite(f"{self.path}/{name}.png", merged_image)
 
-    def _update_progressbar(self, value):
-        self.ui.orthophoto_pb.setValue(math.ceil(value / 1.25))
+    def _update_progressbar(self, current: int, total: int):
+        if total <= 0:
+            percent = 0
+        else:
+            percent = int((current / (total-1)) * 100)
+        percent = max(0, min(100, percent))
+
+        self.ui.orthophoto_pb.setValue(percent)
 
     def set_path(self, path: str):
         self.path = path
@@ -222,6 +220,13 @@ class CameraView(QWidget):
     def orthophoto_ended(self):
         self._change_buttons_state(True)
         self.set_current_action_lbl.emit("Hotovo")
+        self.drivers.move_to_beginning()
+
+        folder = "./App_data/Orthophoto"
+        for filename in os.listdir(folder):
+            file_path = os.path.join(folder, filename)
+            if os.path.isfile(file_path):  # only delete files
+                os.remove(file_path)
 
     def _put_image_into_frame(self, image, cam_id):
         height, width, channels = image.shape
@@ -237,12 +242,23 @@ class CameraView(QWidget):
             self.current_img_2 = image
             self.ui.cam_lbl_2.setPixmap(q_pixmap)
 
-    #todo: možná bude třeba určovat tohle až při spuštění orthophoto
-    def _changed_objective(self):
-        if self.ui.objective_chb.toggled:
-            self.strip_height = 88
+    def _get_strip_height(self) -> int:
+        toggled = self.ui.objective_chb.isChecked()
+        if toggled:
+            if self.op_quality == 1:
+                strip_height = 88
+            elif self.op_quality == 2:
+                strip_height = 176
+            else:
+                strip_height = 800
         else:
-            self.strip_height = 44
+            if self.op_quality == 1:
+                strip_height = 44
+            elif self.op_quality == 2:
+                strip_height = 96
+            else:
+                strip_height= 285
+        return strip_height
 
     def _change_action_lbl(self, lbl):
         self.ui.currnet_action_lbl.setText(lbl)
