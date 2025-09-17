@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'settings_viewhVqkrs.ui'
+## Form generated from reading UI file 'settings_viewsaJFNn.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -148,8 +148,8 @@ class Ui_Form(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(1, 1, 1, 1)
         self.tableWidget = QTableWidget(self.widget)
-        if (self.tableWidget.columnCount() < 10):
-            self.tableWidget.setColumnCount(10)
+        if (self.tableWidget.columnCount() < 11):
+            self.tableWidget.setColumnCount(11)
         __qtablewidgetitem = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -170,6 +170,8 @@ class Ui_Form(object):
         self.tableWidget.setHorizontalHeaderItem(8, __qtablewidgetitem8)
         __qtablewidgetitem9 = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(9, __qtablewidgetitem9)
+        __qtablewidgetitem10 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(10, __qtablewidgetitem10)
         self.tableWidget.setObjectName(u"tableWidget")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -239,23 +241,25 @@ class Ui_Form(object):
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Den", None));
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Hodina", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Hod", None));
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Minuta", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Min", None));
         ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Pr\u016ftok", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Sek", None));
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Photogrammetrie", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Pr\u016ftok", None));
         ___qtablewidgetitem5 = self.tableWidget.horizontalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Orthophoto", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Photogrammetrie", None));
         ___qtablewidgetitem6 = self.tableWidget.horizontalHeaderItem(6)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Foto 1", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Orthophoto", None));
         ___qtablewidgetitem7 = self.tableWidget.horizontalHeaderItem(7)
-        ___qtablewidgetitem7.setText(QCoreApplication.translate("Form", u"Foto 2", None));
+        ___qtablewidgetitem7.setText(QCoreApplication.translate("Form", u"Foto 1", None));
         ___qtablewidgetitem8 = self.tableWidget.horizontalHeaderItem(8)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("Form", u"Video 1", None));
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("Form", u"Foto 2", None));
         ___qtablewidgetitem9 = self.tableWidget.horizontalHeaderItem(9)
-        ___qtablewidgetitem9.setText(QCoreApplication.translate("Form", u"Video 2", None));
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("Form", u"Video 1", None));
+        ___qtablewidgetitem10 = self.tableWidget.horizontalHeaderItem(10)
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("Form", u"Video 2", None));
         self.add_row_btn.setText(QCoreApplication.translate("Form", u"+", None))
         self.delete_row_btn.setText(QCoreApplication.translate("Form", u"-", None))
         self.generate_test_plan_btn.setText(QCoreApplication.translate("Form", u"Vygeneruj test pl\u00e1n", None))

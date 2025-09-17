@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'test_plan_viewXfglJy.ui'
+## Form generated from reading UI file 'test_plan_viewQadhIq.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -63,6 +63,28 @@ class Ui_Form(object):
         self.widget_10 = QWidget(Form)
         self.widget_10.setObjectName(u"widget_10")
         self.widget_10.setMaximumSize(QSize(16777215, 60))
+        self.horizontalLayout_9 = QHBoxLayout(self.widget_10)
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.widget_13 = QWidget(self.widget_10)
+        self.widget_13.setObjectName(u"widget_13")
+        self.widget_13.setStyleSheet(u"QLabel {\n"
+"    background-color: #4CAF50;\n"
+"    border-radius: 7px;\n"
+"    color: white; /* Optional: makes the text readable on red */\n"
+"}\n"
+"")
+        self.horizontalLayout_10 = QHBoxLayout(self.widget_13)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.running_testplan_lbl = QLabel(self.widget_13)
+        self.running_testplan_lbl.setObjectName(u"running_testplan_lbl")
+        self.running_testplan_lbl.setMaximumSize(QSize(300, 16777215))
+        self.running_testplan_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_10.addWidget(self.running_testplan_lbl)
+
+
+        self.horizontalLayout_9.addWidget(self.widget_13)
+
 
         self.verticalLayout.addWidget(self.widget_10)
 
@@ -317,6 +339,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.running_testplan_lbl.setText(QCoreApplication.translate("Form", u"Testov\u00fd pl\u00e1n b\u011b\u017e\u00ed", None))
         ___qtablewidgetitem = self.flow_tw.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Datum", None));
         ___qtablewidgetitem1 = self.flow_tw.horizontalHeaderItem(1)

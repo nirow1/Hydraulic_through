@@ -20,7 +20,6 @@ class SettingsView(QWidget):
         self.ui.setupUi(self)
 
         self.xls_path: str= ""
-
         self.path = "./"
 
         self._initial_graphical_changes()
@@ -90,7 +89,7 @@ class SettingsView(QWidget):
             for row in range(self.ui.tableWidget.rowCount())
         ]
 
-        self._create_flow_plans_tab("./App_data/Test_plan/planed_flow.csv", test_plan_settings)
+        self._create_flow_plans_tab("./App_data/Test_plan/planned_flow.csv", test_plan_settings)
         self._create_flow_plans_tab(self.path + "/flow_plans.csv", test_plan_settings)
 
         self._create_cam_plans_tab("./App_data/Test_plan/cam_plans.csv", test_plan_settings)
@@ -100,27 +99,29 @@ class SettingsView(QWidget):
         with open(path, "w", newline="") as flow_file:
             writer = csv.writer(flow_file)
             for row in plan:
-                if row[3] is not None and row[3] != "":
-                    writer.writerow([self.create_datetime(row), row[3], 0])
+                if row[4] is not None and row[4] != "":
+                    writer.writerow([self.create_datetime(row), row[4], 0])
 
     def _create_cam_plans_tab(self, path: str, plan):
         with open(path, "w", newline="") as cam_file:
             writer = csv.writer(cam_file)
             for row in plan:
                 tasks = [
-                    ("foto 1", row[6] != "", row[6]),
-                    ("foto 2", row[7] != "", row[7]),
-                    ("video 1", row[8] != "", row[8]),
-                    ("video 2", row[9] != "", row[9]),
-                    ("orthophoto", row[5] != "", row[5]),
-                    ("photogrm", row[4] != "", row[4]),
+                    ("foto 1", row[7] != "", row[7]),
+                    ("foto 2", row[8] != "", row[8]),
+                    ("video 1", row[9] != "", row[9]),
+                    ("video 2", row[10] != "", row[10]),
+                    ("orthophoto", row[6] != "", row[6]),
+                    ("photogrm", row[5] != "", row[5]),
                 ]
                 for label, condition, value in tasks:
                     if condition:
                         writer.writerow([self.create_datetime(row), value, label, 0])
 
     def _resize_table_widget(self):
-        for i in range(6):
+        for i in range(4):
+            self.ui.tableWidget.setColumnWidth(i, 94)
+        for i in range(4, 7):
             self.ui.tableWidget.setColumnWidth(i, 125)
 
     def _add_row(self):
@@ -135,10 +136,11 @@ class SettingsView(QWidget):
     def change_button_status(self, status: bool):
         self.ui.generate_test_plan_btn.setEnabled(status)
 
-    def create_datetime(self, data):
+    @staticmethod
+    def create_datetime(data):
         try:
-            days_to_add, hours, minutes = data[:3]
-            result_datetime = datetime.now() + timedelta(days=int(days_to_add),hours=int(hours),minutes=int(minutes))
+            days_to_add, hours, minutes, seconds = data[:4]
+            result_datetime = datetime.now() + timedelta(days=int(days_to_add),hours=int(hours),minutes=int(minutes), seconds=int(seconds))
             return result_datetime.strftime("%d.%m.%Y %H:%M:%S")
         except Exception as e:
             return 0

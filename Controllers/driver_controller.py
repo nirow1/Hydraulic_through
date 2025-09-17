@@ -55,12 +55,10 @@ class DriverController(QThread):
             self.client.write_registers(24578, [17])
 
     def move_step(self, req_photos):
-        thread = Thread(target=self._move_step, args=[req_photos])
-        thread.start()
-
-    def _move_step(self, req_photos):
         self.set_position(self.step_number)
-        self.step_number += int(245/req_photos)
+        self.step_number += int(245 / req_photos)
+        if self.step_number == 245-245 % req_photos:
+            self.step_number = 0
 
     def start_jog(self, left: bool):
         if self.connected:

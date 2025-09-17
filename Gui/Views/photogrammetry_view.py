@@ -3,12 +3,12 @@ import csv
 import time
 #import Metashape
 
-from threading import Thread
-from PySide6.QtCore import Signal
 from Controllers.phtgr_cam_controller import PhtgrCamController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
 from Controllers.driver_controller import DriverController
 from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Signal
+from threading import Thread
 
 
 class PhotogrammetryView(QWidget):
@@ -43,7 +43,6 @@ class PhotogrammetryView(QWidget):
     #todo: pokud bude ortophoto naplánovaná při photogrammetrii je možnost jí udělat v Metashape
     #todo: je třeba udělat nějaký check, jestli fotogrammetrie běží, aby se nestalo, že se jí pokusím zapnout 2x
     #todo: přidat přehled o časové náročnosti
-    #todo: dodělat databázi photogrammetrie
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(self.start_photogrammetry)
 
@@ -59,30 +58,31 @@ class PhotogrammetryView(QWidget):
         self.cams_ready = state
 
     def start_photogrammetry(self, blocking=False):
-        if blocking:
-            self._create_directory()
+        self._create_directory()
+
+        """if blocking:
             self._create_photogrammetry_photos()
             self._create_photogrammetry_model()
         else:
-            self._create_directory()
             Thread(target=self._create_photogrammetry_photos).start()
-            Thread(target=self._create_photogrammetry_model).start()
+            Thread(target=self._create_photogrammetry_model).start()"""
 
     def _create_directory(self):
+        self._create_photogrammetry_record()
         path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_working_id}"
         os.makedirs(path, exist_ok=True)
+
 
     def _create_photogrammetry_photos(self):
         self.drivers.move_to_beginning()
         time.sleep(11)
-        for i in range(122):
+        for i in range(80):
             print(f"foto:{i}")
             self._change_cams_state(False)
             self.cameras.acquire_frames(i)
             while not self.cams_ready:
                 time.sleep(0.05)
-            self.drivers.move_step(122)
-        #change_csv_status("./App_data/cam_plans/photogrammetry.csv", self.current_working_id, 1)
+            self.drivers.move_step(80)
 
     def _create_photogrammetry_model(self):
         os.makedirs(self.path, exist_ok=True)
@@ -108,18 +108,18 @@ class PhotogrammetryView(QWidget):
     def _create_point_cloud(self):
         self.creating_point_cloud.emit()
         self.chunk.buildDepthMaps(downscale=2, filter_mode=Metashape.MildFiltering)
-        self.chunk.buildPointCloud()
+        self.chunk.buildPointCloud(progress=self.progress_callback)
         self.doc.save(os.path.join(self.path, "project_after_pointcloud.psx"))
 
     def _create_model(self):
         self.creating_model.emit()
-        self.chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.MediumFaceCount)
+        self.chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.MediumFaceCount, progress=self.progress_callback)
         self.doc.save(os.path.join(self.path, "project_after_model.psx"))
 
     def build_texture(self):
         self.building_texture.emit()
         self.chunk.buildUV(mapping_mode=Metashape.GenericMapping)
-        self.chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=4096)
+        self.chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=4096, progress=self.progress_callback)
         self.doc.save(os.path.join(self.path, "project_after_texture.psx"))
 
     def export_results(self):
@@ -136,11 +136,11 @@ class PhotogrammetryView(QWidget):
         self.progress.emit(info)
 
     def _create_photogrammetry_record(self):
-        file_path = "./App_data/cam_plans/photogrammetry.csv"
+        file_path = "./App_data/Test_plan/planned_photogrammetry.csv"
 
         with open(file_path, mode="r+", newline="") as f:
             reader = list(csv.reader(f))
-            records = reader[1:]
+            records = reader
 
             # Extract existing IDs
             existing_ids = [int(row[0]) for row in records if len(row) != 0]
@@ -153,7 +153,7 @@ class PhotogrammetryView(QWidget):
             empty_row_index = next((i for i, row in enumerate(records) if not row or all(cell == '' for cell in row)),
                                    None)
 
-            new_row = [str(last_id), 0, 0, 0]
+            new_row = [str(last_id), 0, 0, 0, 0]
 
             if empty_row_index is not None:
                 records[empty_row_index] = new_row  # Fill the first empty row
@@ -163,11 +163,10 @@ class PhotogrammetryView(QWidget):
             # Rewrite the file with updated data
             f.seek(0)
             writer = csv.writer(f)
-            writer.writerow(reader[0])  # Write headers back
             writer.writerows(records)
             f.truncate()  # Ensure old data is removed
 
-        return last_id
+            self.current_working_id = last_id
 
     def _update_progressbar(self, value):
         self.ui.progressBar.setValue(round(value, 1))

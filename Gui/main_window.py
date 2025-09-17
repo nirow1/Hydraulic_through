@@ -41,7 +41,6 @@ class MainWindow(QMainWindow):
         self._bind_emits()
         self._set_save_path("./")
 
-    #todo: přidat zelený lbl, že testový plán běží
     def setup_views(self):
         self.ui.stackedWidget.addWidget(self.settings_view)
         self.ui.stackedWidget.addWidget(self.camera_view)
@@ -107,28 +106,23 @@ class MainWindow(QMainWindow):
                     time.sleep(12)
                     if row[2] == "foto 1":
                         self.camera_view.save_photo(1)
-                        print("photo 1 taken")
-                        time.sleep(2)
+                        time.sleep(1)
                     if row[2] == "foto 2":
                         self.camera_view.save_photo(2)
-                        print("photo 2 taken")
-                        time.sleep(2)
+                        time.sleep(1)
                     if row[2] == "video 1":
                         self.camera_view.save_video(1, blocking=True)
-                        print("video 1 taken")
                     if row[2] == "video 2":
                         self.camera_view.save_video(2, blocking=True)
-                        print(print("photo 2 taken"))
                     if row[2] == "orthophoto":
                         self.camera_view.make_orthophoto_image(quality=row[1],blocking=True)
-                        print("orthopohoto taken")
                     if row[2] == "photogrm":
                         self.photogrammetry_view.start_photogrammetry(blocking=True)
                     change_csv_status(path, i, 3)
                     self.update_tabs.emit()
 
     def _iterate_flow_plans(self):
-        path = "./App_data/Test_plan/planed_flow.csv"
+        path = "./App_data/Test_plan/planned_flow.csv"
         flow_plans = extract_data_from_csv(path)
         self.test_plan_view.start_saving()
 
@@ -144,6 +138,7 @@ class MainWindow(QMainWindow):
                     self.update_tabs.emit()
 
         self.test_plan_view.stop_saving()
+        self.test_plan_view.show_testplan_lbl(False)
         self._change_button_state(True)
         self.stop = False
 

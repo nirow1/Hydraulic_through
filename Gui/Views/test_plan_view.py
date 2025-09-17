@@ -31,13 +31,13 @@ class TestPlanView(QWidget):
         self._bind_buttons()
         self._bind_emits()
 
-    #todo: přidat sekundy do tabulky
     def _initial_graphical_changes(self):
         self.ui.load_btn.hide()
         self.ui.send_through_le.setValidator(FloatValidator(2, 1))
         self.ui.flow_tw.verticalHeader().setVisible(False)
         self.ui.cam_plans_tw.verticalHeader().setVisible(False)
         self.ui.continue_plan_btn.setVisible(False)
+        self.show_testplan_lbl(False)
         self._set_columns()
 
     def _bind_emits(self):
@@ -46,7 +46,11 @@ class TestPlanView(QWidget):
     def _bind_buttons(self):
         self.ui.send_through_btn.clicked.connect(lambda: self._change_flow(float(self.ui.send_through_le.text())))
         self.ui.continue_plan_btn.clicked.connect(lambda: self.LOAD_PLAN.emit())
-        self.ui.start_plan_btn.clicked.connect(self.START_PLAN.emit)
+        self.ui.start_plan_btn.clicked.connect(self._start_testplan)
+
+    def _start_testplan(self):
+        self.START_PLAN.emit()
+        self.show_testplan_lbl(True)
 
     def _change_flow(self, flow: float):
         flow_voltage = int(flow * 10)
@@ -85,7 +89,7 @@ class TestPlanView(QWidget):
         self.ui.progressBar.setValue(value)
 
     def update_tabs(self):
-        flow_plans = extract_data_from_csv("./App_data/Test_plan/planed_flow.csv")
+        flow_plans = extract_data_from_csv("./App_data/Test_plan/planned_flow.csv")
         cam_plans = extract_data_from_csv("./App_data/Test_plan/cam_plans.csv")
         self.populate_table(self.ui.flow_tw, flow_plans)
         self.populate_table(self.ui.cam_plans_tw, cam_plans)
@@ -106,6 +110,9 @@ class TestPlanView(QWidget):
             for column, value in enumerate(row_data):
                 item = QTableWidgetItem(str(value))
                 table.setItem(row_position, column, item)
+
+    def show_testplan_lbl(self, state):
+        self.ui.running_testplan_lbl.setVisible(state)
 
     def _set_columns(self):
         self.ui.flow_tw.setColumnWidth(0, 170)

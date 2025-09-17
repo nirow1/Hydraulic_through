@@ -247,12 +247,17 @@ QScrollBar::add-line:vertical
               </column>
               <column>
                <property name="text">
-                <string>Hodina</string>
+                <string>Hod</string>
                </property>
               </column>
               <column>
                <property name="text">
-                <string>Minuta</string>
+                <string>Min</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Sek</string>
                </property>
               </column>
               <column>
