@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'test_plan_viewQadhIq.ui'
+## Form generated from reading UI file 'test_plan_viewHMzecg.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -75,6 +75,13 @@ class Ui_Form(object):
 "")
         self.horizontalLayout_10 = QHBoxLayout(self.widget_13)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.running_phtgr_lbl = QLabel(self.widget_13)
+        self.running_phtgr_lbl.setObjectName(u"running_phtgr_lbl")
+        self.running_phtgr_lbl.setMaximumSize(QSize(300, 16777215))
+        self.running_phtgr_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_10.addWidget(self.running_phtgr_lbl)
+
         self.running_testplan_lbl = QLabel(self.widget_13)
         self.running_testplan_lbl.setObjectName(u"running_testplan_lbl")
         self.running_testplan_lbl.setMaximumSize(QSize(300, 16777215))
@@ -339,6 +346,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.running_phtgr_lbl.setText(QCoreApplication.translate("Form", u"Photogrammetrie b\u011b\u017e\u00ed", None))
         self.running_testplan_lbl.setText(QCoreApplication.translate("Form", u"Testov\u00fd pl\u00e1n b\u011b\u017e\u00ed", None))
         ___qtablewidgetitem = self.flow_tw.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Datum", None));

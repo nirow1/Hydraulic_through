@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
                     if row[2] == "orthophoto":
                         self.camera_view.make_orthophoto_image(quality=row[1],blocking=True)
                     if row[2] == "photogrm":
-                        self.photogrammetry_view.start_photogrammetry(blocking=True)
+                        self.photogrammetry_view.start_photogrammetry(quality=row[1], blocking=True)
                     change_csv_status(path, i, 3)
                     self.update_tabs.emit()
 
@@ -149,9 +149,6 @@ class MainWindow(QMainWindow):
     def _change_flow(self, flow: float):
         flow_voltage = int(flow * 10)
         self.logo.write_logo_ushort(1, flow_voltage)
-
-    def _start_photogrammetry(self):
-        self.photogrammetry_view.start_photogrammetry()
 
     def _menu_animation(self, state: bool):
         start = 180 if state else 0

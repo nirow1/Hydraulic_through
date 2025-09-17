@@ -71,6 +71,22 @@ background-color: #ccc;
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
+          <widget class="QLabel" name="running_phtgr_lbl">
+           <property name="maximumSize">
+            <size>
+             <width>300</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Photogrammetrie běží</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="running_testplan_lbl">
            <property name="maximumSize">
             <size>

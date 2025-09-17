@@ -18,7 +18,6 @@ class PhotogrammetryView(QWidget):
     building_texture = Signal()
     progress = Signal(float)
 
-    #todo: přidat do gui nastavení photogrammetrie
     def __init__(self, drivers):
         QWidget.__init__(self)
         self.ui = Ui_Form()
@@ -27,11 +26,16 @@ class PhotogrammetryView(QWidget):
         self.cameras: PhtgrCamController = PhtgrCamController()
 
         # variables
-        self.current_working_id = 0
-        self.path: str = ""
+        self.current_project_id = 0
+        self.result_path: str = ""
         self.cams_ready = False
         #self.doc = Metashape.Document()
         #self.chunk = self.doc.addChunk()
+
+        self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
+        self.point_cloud_setting = {"downscale": 0, "filter": 0}
+        self.mesh_face_count = 0
+        self.texture_settings = {}
 
         self._initial_graphical_changes()
         self._bind_buttons()
@@ -40,11 +44,11 @@ class PhotogrammetryView(QWidget):
     def _initial_graphical_changes(self):
         pass
 
-    #todo: pokud bude ortophoto naplánovaná při photogrammetrii je možnost jí udělat v Metashape
     #todo: je třeba udělat nějaký check, jestli fotogrammetrie běží, aby se nestalo, že se jí pokusím zapnout 2x
     #todo: přidat přehled o časové náročnosti
+    #todo: pridat chb na mazání filů po skončení phtotogrammetrie
     def _bind_buttons(self):
-        self.ui.start_new_phtgrm_btn.clicked.connect(self.start_photogrammetry)
+        self.ui.start_new_phtgrm_btn.clicked.connect(lambda: self.start_photogrammetry())
 
     def _bind_emits(self):
         self.cameras.CAMS_READY.connect(lambda: self._change_cams_state(True))
@@ -57,25 +61,29 @@ class PhotogrammetryView(QWidget):
     def _change_cams_state(self, state: bool):
         self.cams_ready = state
 
-    def start_photogrammetry(self, blocking=False):
+    def start_photogrammetry(self,quality=None, blocking=False):
         self._create_directory()
+        self._set_quality(quality)
 
-        """if blocking:
+        if blocking:
             self._create_photogrammetry_photos()
-            self._create_photogrammetry_model()
+            Thread(target=self._create_photogrammetry_model).start()
         else:
-            Thread(target=self._create_photogrammetry_photos).start()
-            Thread(target=self._create_photogrammetry_model).start()"""
+            Thread(target=self._start_photogrammetry_process).start()
 
     def _create_directory(self):
         self._create_photogrammetry_record()
-        path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_working_id}"
+        path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos"
         os.makedirs(path, exist_ok=True)
 
+    def _start_photogrammetry_process(self):
+        self._create_photogrammetry_photos()
+        self._create_photogrammetry_model()
 
     def _create_photogrammetry_photos(self):
         self.drivers.move_to_beginning()
-        time.sleep(11)
+        self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos")
+        time.sleep(12)
         for i in range(80):
             print(f"foto:{i}")
             self._change_cams_state(False)
@@ -85,49 +93,58 @@ class PhotogrammetryView(QWidget):
             self.drivers.move_step(80)
 
     def _create_photogrammetry_model(self):
-        os.makedirs(self.path, exist_ok=True)
-        self._align_photos()
-        self._create_point_cloud()
-        self._create_model()
-        self.build_texture()
+        result_folder_path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}"
+        self._align_photos(result_folder_path)
+        self._create_point_cloud(result_folder_path)
+        self._create_model(result_folder_path)
+        #todo: toto vubec nebude platit pokud je photogrammetrie zapnutá z testplanu
+        if self.ui.texture_chb.isChecked():
+            self.build_texture(result_folder_path)
         self.export_results()
         self.doc.remove(self.chunk)
         self.chunk = None
 
-    def _align_photos(self):
+    def _align_photos(self, result_folder_path):
         self.aligning_photos.emit()
-        image_folder = "./App_data/Photogrammetry/Photogrammetry_1"
-        photos = [os.path.join(image_folder, p) for p in os.listdir(image_folder) if p.endswith(".png")]
+        photo_folder_path = result_folder_path+"/photos"
+        photos = [os.path.join(photo_folder_path, p) for p in os.listdir(photo_folder_path) if p.endswith(".png")]
         self.chunk.addPhotos(photos)
 
-        #downscale is accuracy
-        self.chunk.matchPhotos(downscale=1,  keypoint_limit=40000, tiepoint_limit=10000, progress=self.progress_callback)
+        self.chunk.matchPhotos(downscale=self.photo_align_settings["downscale"],
+                               keypoint_limit=self.photo_align_settings["keypoint"],
+                               tiepoint_limit=self.photo_align_settings["tiepoint"],
+                               progress=self.progress_callback)
         self.chunk.alignCameras()
-        self.doc.save(os.path.join(self.path, "project_after_alignment.psx"))
+        self.doc.save(os.path.join(result_folder_path, "project_after_alignment.psx"))
 
-    def _create_point_cloud(self):
+    def _create_point_cloud(self, result_file_path):
         self.creating_point_cloud.emit()
         self.chunk.buildDepthMaps(downscale=2, filter_mode=Metashape.MildFiltering)
         self.chunk.buildPointCloud(progress=self.progress_callback)
-        self.doc.save(os.path.join(self.path, "project_after_pointcloud.psx"))
+        self.doc.save(os.path.join(result_file_path, "project_after_pointcloud.psx"))
 
-    def _create_model(self):
+    def _create_model(self, result_folder_path):
         self.creating_model.emit()
-        self.chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.MediumFaceCount, progress=self.progress_callback)
-        self.doc.save(os.path.join(self.path, "project_after_model.psx"))
+        self.chunk.buildModel(surface_type=Metashape.Arbitrary,
+                              interpolation=Metashape.EnabledInterpolation,
+                              face_count=Metashape.MediumFaceCount,
+                              progress=self.progress_callback)
+        self.doc.save(os.path.join(result_folder_path, "project_after_model.psx"))
 
-    def build_texture(self):
+    def build_texture(self, result_folder_path):
         self.building_texture.emit()
         self.chunk.buildUV(mapping_mode=Metashape.GenericMapping)
-        self.chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=4096, progress=self.progress_callback)
-        self.doc.save(os.path.join(self.path, "project_after_texture.psx"))
+        self.chunk.buildTexture(blending_mode=Metashape.MosaicBlending,
+                                texture_size=4096,
+                                progress=self.progress_callback)
+        self.doc.save(os.path.join(result_folder_path, "project_after_texture.psx"))
 
     def export_results(self):
-        os.makedirs(self.path, exist_ok=True)
+        os.makedirs(self.result_path, exist_ok=True)
 
         # Export to STL
         self.chunk.exportModel(
-            path=os.path.join(self.path, "model.stl"),
+            path=os.path.join(self.result_path, "model.stl"),
             binary=True,  # True = binary STL (smaller file size), False = ASCII STL
             format=Metashape.ModelFormatSTL
         )
@@ -150,8 +167,7 @@ class PhotogrammetryView(QWidget):
             while last_id in existing_ids:
                 last_id += 1
 
-            empty_row_index = next((i for i, row in enumerate(records) if not row or all(cell == '' for cell in row)),
-                                   None)
+            empty_row_index = next((i for i, row in enumerate(records) if not row or all(cell == '' for cell in row)), None)
 
             new_row = [str(last_id), 0, 0, 0, 0]
 
@@ -166,13 +182,53 @@ class PhotogrammetryView(QWidget):
             writer.writerows(records)
             f.truncate()  # Ensure old data is removed
 
-            self.current_working_id = last_id
+            self.current_project_id = last_id
+
+    def _set_quality(self, quality=None):
+        if quality == 1:
+            self._set_alignment_settings(1, 80000, 20000)
+            self._set_point_cloud_settings(1, 2)
+            self._set_model_settings(1)
+        elif quality == 2:
+            self._set_alignment_settings(2, 40000, 10000)
+            self._set_point_cloud_settings(2, 2)
+            self._set_model_settings(2)
+        elif quality == 3:
+            self._set_alignment_settings(4, 20000, 2000)
+            self._set_point_cloud_settings(4, 3)
+            self._set_model_settings(3)
+        else:
+            pass
+
+    def _set_alignment_settings(self,downscale, keypoint, tiepoint):
+        self.photo_align_settings["downscale"] = downscale
+        self.photo_align_settings["keypoint"] = keypoint
+        self.photo_align_settings["tiepoint"] = tiepoint
+
+    def _set_point_cloud_settings(self, downscale, filter):
+        self.point_cloud_setting["downscale"] = downscale
+        if filter == 1:
+            self.point_cloud_setting["filter"] = Metashape.NoFiltering
+        elif filter == 2:
+            self.point_cloud_setting["filter"] = Metashape.MildFiltering
+        else:
+            self.point_cloud_setting["filter"] = Metashape.AggressiveFiltering
+
+    def _set_model_settings(self, face_count):
+        if face_count == 1:
+            self.mesh_face_count = Metashape.HighFaceCount
+        elif face_count == 2:
+            self.mesh_face_count = Metashape.MediumFaceCount
+        else:
+            self.mesh_face_count = Metashape.LowFaceCount
+
+
 
     def _update_progressbar(self, value):
         self.ui.progressBar.setValue(round(value, 1))
 
     def set_path(self, path):
-        self.path = os.path.join(path, "fotogrametrie")
+        self.result_path = os.path.join(path, "fotogrammetrie")
 
     def disconnect(self):
         self.cameras.stop_recording()

@@ -1,10 +1,9 @@
-import os
-from threading import Thread
-
-from PySide6.QtCore import QObject, Signal
-from pypylon import pylon
 import numpy
 import cv2
+
+from PySide6.QtCore import QObject, Signal
+from threading import Thread
+from pypylon import pylon
 
 
 class CamController(QObject):
@@ -55,7 +54,7 @@ class CamController(QObject):
                 grab_result = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_Return)
                 if grab_result.GrabSucceeded():
                     image.AttachGrabResultBuffer(grab_result)
-                    filename = f"{self.save_path}/Photogrammetry/Photogrammetry_1/cam_{self.cam_id}_{str(count)}.png"
+                    filename = f"{self.save_path}/cam_{self.cam_id}_{str(count)}.png"
                     image.Save(pylon.ImageFileFormat_Png, filename)
                     self.FRAME_SAVED.emit(self.cam_id)
                     print(f"{self.cam_id} emited")
