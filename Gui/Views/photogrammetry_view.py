@@ -1,7 +1,7 @@
 import os
 import csv
 import time
-#import Metashape
+import Metashape
 
 from Controllers.phtgr_cam_controller import PhtgrCamController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
@@ -12,6 +12,7 @@ from threading import Thread
 
 
 class PhotogrammetryView(QWidget):
+    PHTGR_RUNNING = Signal(bool)
     aligning_photos = Signal()
     creating_point_cloud = Signal()
     creating_model = Signal()
@@ -19,6 +20,7 @@ class PhotogrammetryView(QWidget):
     progress = Signal(float)
 
     def __init__(self, drivers):
+
         QWidget.__init__(self)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
@@ -29,24 +31,29 @@ class PhotogrammetryView(QWidget):
         self.current_project_id = 0
         self.result_path: str = ""
         self.cams_ready = False
-        #self.doc = Metashape.Document()
-        #self.chunk = self.doc.addChunk()
+        self.doc = Metashape.Document()
+        self.chunk = self.doc.addChunk()
+        self.quality = None
 
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
         self.point_cloud_setting = {"downscale": 0, "filter": 0}
         self.mesh_face_count = 0
-        self.texture_settings = {}
+        self.texture_settings = {"blending": 0, "size": 0}
 
         self._initial_graphical_changes()
         self._bind_buttons()
         self._bind_emits()
 
     def _initial_graphical_changes(self):
-        pass
+        for i in range(5):
+            self.ui.tableWidget.setColumnWidth(i, 39)
 
-    #todo: je třeba udělat nějaký check, jestli fotogrammetrie běží, aby se nestalo, že se jí pokusím zapnout 2x
+        self.ui.widget_28.setVisible(False)
+
+    #todo: je třeba udělat nějaký check, jestli fotogrammetrie běží, aby se nestalo, že se jí pokusím zapnout 2x toto se musí i s ortophoto a vice versa
     #todo: přidat přehled o časové náročnosti
     #todo: pridat chb na mazání filů po skončení phtotogrammetrie
+    #todo: poprvé se kamery nepohnou
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(lambda: self.start_photogrammetry())
 
@@ -61,13 +68,20 @@ class PhotogrammetryView(QWidget):
     def _change_cams_state(self, state: bool):
         self.cams_ready = state
 
+    #todo: updatovat tabulky
+    #todo: pridat a zpracovat hodnoty
+    #todo: přidat zbírání fotek do progressbaru
+    #todo: možnost vypnout photogrammetrii
+    #todo: reset kamer pokud se odpojí
     def start_photogrammetry(self,quality=None, blocking=False):
         self._create_directory()
-        self._set_quality(quality)
+        self.PHTGR_RUNNING.emit(True)
+        self.quality = quality
+        self._set_quality(quality) #todo: toto zjistit zda funguje správně
 
         if blocking:
             self._create_photogrammetry_photos()
-            Thread(target=self._create_photogrammetry_model).start()
+            #Thread(target=self._create_photogrammetry_model).start()
         else:
             Thread(target=self._start_photogrammetry_process).start()
 
@@ -78,8 +92,10 @@ class PhotogrammetryView(QWidget):
 
     def _start_photogrammetry_process(self):
         self._create_photogrammetry_photos()
-        self._create_photogrammetry_model()
+        #self._create_photogrammetry_model()
 
+    #todo: error: The camera device has been physically removed. : RuntimeException thrown (file 'instantcameraimpl.h', line 2111)
+    #todo: vypnout ovládání driverů při photogrammetrii
     def _create_photogrammetry_photos(self):
         self.drivers.move_to_beginning()
         self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos")
@@ -97,12 +113,12 @@ class PhotogrammetryView(QWidget):
         self._align_photos(result_folder_path)
         self._create_point_cloud(result_folder_path)
         self._create_model(result_folder_path)
-        #todo: toto vubec nebude platit pokud je photogrammetrie zapnutá z testplanu
-        if self.ui.texture_chb.isChecked():
+        if self.quality is None and self.ui.texture_chb.isChecked():
             self.build_texture(result_folder_path)
         self.export_results()
         self.doc.remove(self.chunk)
-        self.chunk = None
+        self.PHTGR_RUNNING.emit(False)
+        #self.chunk = None
 
     def _align_photos(self, result_folder_path):
         self.aligning_photos.emit()
@@ -211,18 +227,24 @@ class PhotogrammetryView(QWidget):
             self.point_cloud_setting["filter"] = Metashape.NoFiltering
         elif filter == 2:
             self.point_cloud_setting["filter"] = Metashape.MildFiltering
-        else:
+        elif filter == 3:
             self.point_cloud_setting["filter"] = Metashape.AggressiveFiltering
+        else:
+            self.point_cloud_setting["filter"] = filter
 
     def _set_model_settings(self, face_count):
         if face_count == 1:
             self.mesh_face_count = Metashape.HighFaceCount
         elif face_count == 2:
             self.mesh_face_count = Metashape.MediumFaceCount
-        else:
+        elif face_count == 3:
             self.mesh_face_count = Metashape.LowFaceCount
+        else:
+            self.mesh_face_count = face_count
 
-
+    def _set_texture_settings(self, blending_mode, texture_size):
+        self.texture_settings["blending"] = blending_mode
+        self.texture_settings["size"] = texture_size
 
     def _update_progressbar(self, value):
         self.ui.progressBar.setValue(round(value, 1))

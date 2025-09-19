@@ -84,10 +84,13 @@ class CameraView(QWidget):
         self.set_current_action_lbl.connect(self._change_action_lbl)
 
     def connect_clicked(self):
-        if not self.connecting_cameras:
-            self._connect_to_cameras()
+        self._open_camera_connection()
 
+    #todo: odpojit kamery při photogrammetrii
+    #todo: je třeba také ošetřit error pokud je jedna z kamer už připojená
+    #todo: možná bude stačit jen opět poslet connect na třídě kamery
     def _connect_to_cameras(self):
+
         self.connecting_cameras = True
         serial_number_1 = "40620956"
         serial_number_2 = "40622574"
@@ -105,10 +108,13 @@ class CameraView(QWidget):
         if device_1:
             self.cam = CamController(device_1, 0)
             self.cam.start_capturing()
+            time.sleep(1)
+            self.cam.set_frame_rate(30)
 
         if device_2:
             self.cam_2 = CamController(device_2, 1)
             self.cam_2.start_capturing()
+            self.cam_2.set_frame_rate(30)
 
         if self.cam is not None:
             self.cam.CAM_FRAME.connect(lambda image: self._put_image_into_frame(image, 1))
@@ -116,6 +122,11 @@ class CameraView(QWidget):
             self.cam_2.CAM_FRAME.connect(lambda image: self._put_image_into_frame(image, 2))
 
         self.connecting_cameras = False
+
+    #todo: toto je nebezpečné pokud kamera již běží a snímá
+    def _open_camera_connection(self):
+        self.cam.open_connection_and_start_grabbing()
+        self.cam_2.open_connection_and_start_grabbing()
 
     def make_orthophoto_image(self,quality = None, blocking=False):
         self._change_buttons_state(False)
@@ -125,7 +136,7 @@ class CameraView(QWidget):
         if blocking:
             self._create_photos()
         else:
-            photo_creation_thread = Thread(target=self._process_orthophoto_image)#self._create_photos)
+            photo_creation_thread = Thread(target=self._create_photos)
             photo_creation_thread.start()
 
     def _create_photos(self):

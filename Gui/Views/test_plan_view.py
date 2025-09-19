@@ -38,6 +38,7 @@ class TestPlanView(QWidget):
         self.ui.cam_plans_tw.verticalHeader().setVisible(False)
         self.ui.continue_plan_btn.setVisible(False)
         self.show_testplan_lbl(False)
+        self.show_photogrammetry_lbl(False)
         self._set_columns()
 
     def _bind_emits(self):
@@ -113,6 +114,9 @@ class TestPlanView(QWidget):
 
     def show_testplan_lbl(self, state):
         self.ui.running_testplan_lbl.setVisible(state)
+
+    def show_photogrammetry_lbl(self, state):
+        self.ui.running_phtgr_lbl.setVisible(state)
 
     def _set_columns(self):
         self.ui.flow_tw.setColumnWidth(0, 170)

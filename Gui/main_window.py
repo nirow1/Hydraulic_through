@@ -76,6 +76,7 @@ class MainWindow(QMainWindow):
         self.settings_view.SAVE_PATH.connect(self._set_save_path)
 
         self.test_plan_view.START_PLAN.connect(self._start_plans)
+        self.photogrammetry_view.PHTGR_RUNNING.connect(self._show_photogrammetry_lbl)
 
         self.change_next_flow.connect(lambda flow: self.test_plan_view.update_next_planed_change(flow[0], flow[1], flow[2]))
         self.update_tabs.connect(self.test_plan_view.update_tabs)
@@ -163,6 +164,9 @@ class MainWindow(QMainWindow):
     def _change_button_state(self, state):
         self.test_plan_view.change_button_state(state)
         self.settings_view.change_button_status(state)
+
+    def _show_photogrammetry_lbl(self, state):
+        self.test_plan_view.show_photogrammetry_lbl(state)
 
     def _stop_through(self):
         self.logo.write_logo_ushort(1, 0)

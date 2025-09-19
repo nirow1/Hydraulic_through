@@ -39,7 +39,7 @@ class CamController(QObject):
                 grab_result.Release()
 
         except Exception as e:
-            print(e)
+            print(f"cam {self.cam_id}: {e}")
 
     def grab_frame(self, count: int):
         thread = Thread(target=self._grab_frame, args=[count])
@@ -51,7 +51,7 @@ class CamController(QObject):
             image = pylon.PylonImage()
 
             while self.camera.IsGrabbing():
-                grab_result = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_Return)
+                grab_result = self.camera.RetrieveResult(2000, pylon.TimeoutHandling_Return)
                 if grab_result.GrabSucceeded():
                     image.AttachGrabResultBuffer(grab_result)
                     filename = f"{self.save_path}/cam_{self.cam_id}_{str(count)}.png"
@@ -61,12 +61,11 @@ class CamController(QObject):
                     grab_result.Release()
                     break
                 else:
-                    print(f"Error grabbing image {self.cam_id}")
                     grab_result.Release()
 
             self.camera.StopGrabbing()
         except Exception as e:
-            print(f"Error: {str(e)}")
+            print(f"cam {self.cam_id}: {e}")
 
     def set_path(self, path):
         self.save_path = path
@@ -76,6 +75,10 @@ class CamController(QObject):
 
     def set_exposure(self, val: float):
         self.camera.ExposureTime.SetValue(val)
+
+    def open_connection_and_start_grabbing(self):
+        self.camera.Open()
+        self.start_capturing()
 
     def set_gain(self, val: float):
         self.camera.Gain.SetValue(val)
