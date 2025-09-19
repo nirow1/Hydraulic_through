@@ -10,14 +10,18 @@ class CamController(QObject):
     CAM_FRAME = Signal(numpy.ndarray)
     FRAME_SAVED = Signal(int)
 
-    def __init__(self, cam, cam_id):
+    def __init__(self, device_info, cam_id):
         super().__init__()
-        self.camera: pylon.InstantCamera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(cam))
+        self.device_info = device_info
         self.cam_id = cam_id
-        self.camera.Open()
-        self.set_frame_rate(2)
+        self._connect_to_camera()
         self.camera.AcquisitionFrameRateEnable.SetValue(True)
+        self.set_frame_rate(2)
         self.save_path = "./App_data"
+
+    def _connect_to_camera(self):
+        self.camera: pylon.InstantCamera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(self.device_info))
+        self.camera.Open()
 
     def start_capturing(self):
         thread = Thread(target=self._camera_capture)
@@ -64,8 +68,12 @@ class CamController(QObject):
                     grab_result.Release()
 
             self.camera.StopGrabbing()
-        except Exception as e:
-            print(f"cam {self.cam_id}: {e}")
+        except pylon.RuntimeException as e:
+            if "physically removed" in str(e):
+                print(f"Camera {self.cam_id} was disconnected! Reconnecting...")
+                self.reconnect()
+            else:
+                print(f"Camera {self.cam_id} error:", e)
 
     def set_path(self, path):
         self.save_path = path
@@ -82,6 +90,14 @@ class CamController(QObject):
 
     def set_gain(self, val: float):
         self.camera.Gain.SetValue(val)
+
+    def reconnect(self):
+        try:
+            self.camera.Close()
+        except:
+            pass
+        print(f"Reconnecting camera {self.cam_id} ...")
+        self._connect_to_camera()
 
     def disconnect(self):
         self.camera.Close()

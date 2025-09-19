@@ -1,11 +1,13 @@
-import os
-import csv
+#import Metashape
 import time
-import Metashape
+import csv
+import os
 
 from Controllers.phtgr_cam_controller import PhtgrCamController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
 from Controllers.driver_controller import DriverController
+from Utils.csv_work import extract_data_from_csv
+from Utils.ui_workers import populate_table
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Signal
 from threading import Thread
@@ -31,15 +33,16 @@ class PhotogrammetryView(QWidget):
         self.current_project_id = 0
         self.result_path: str = ""
         self.cams_ready = False
-        self.doc = Metashape.Document()
-        self.chunk = self.doc.addChunk()
+        self.doc = None#Metashape.Document()
+        self.chunk = None#self.doc.addChunk()
         self.quality = None
 
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
         self.point_cloud_setting = {"downscale": 0, "filter": 0}
-        self.mesh_face_count = 0
         self.texture_settings = {"blending": 0, "size": 0}
+        self.mesh_face_count = 0
 
+        self._update_photogrammetry_table()
         self._initial_graphical_changes()
         self._bind_buttons()
         self._bind_emits()
@@ -47,10 +50,17 @@ class PhotogrammetryView(QWidget):
     def _initial_graphical_changes(self):
         for i in range(5):
             self.ui.tableWidget.setColumnWidth(i, 39)
-
+        self.ui.tableWidget.verticalHeader().setVisible(False)
         self.ui.widget_28.setVisible(False)
 
-    #todo: je třeba udělat nějaký check, jestli fotogrammetrie běží, aby se nestalo, že se jí pokusím zapnout 2x toto se musí i s ortophoto a vice versa
+        self.ui.alignment_downscale_cb.addItems(["1","2","3","4"])
+        self.ui.cloud_downscale_cb.addItems(["1","2","3","4","5","6","7","8"])
+        self.ui.filter_cb.addItems(["bez filtru","střední filtr","Agresivní filtr"])
+        self.ui.face_count_cb.addItems(["Vysoký","Střední","Nízký"])
+        self.ui.blending_mode_cb.addItems(["Mosaic","Average"])
+        self.ui.texture_size.addItems(["8192","4096","1024"])
+
+
     #todo: přidat přehled o časové náročnosti
     #todo: pridat chb na mazání filů po skončení phtotogrammetrie
     #todo: poprvé se kamery nepohnou
@@ -68,14 +78,12 @@ class PhotogrammetryView(QWidget):
     def _change_cams_state(self, state: bool):
         self.cams_ready = state
 
-    #todo: updatovat tabulky
-    #todo: pridat a zpracovat hodnoty
     #todo: přidat zbírání fotek do progressbaru
     #todo: možnost vypnout photogrammetrii
-    #todo: reset kamer pokud se odpojí
     def start_photogrammetry(self,quality=None, blocking=False):
         self._create_directory()
         self.PHTGR_RUNNING.emit(True)
+        self._update_photogrammetry_table()
         self.quality = quality
         self._set_quality(quality) #todo: toto zjistit zda funguje správně
 
@@ -94,9 +102,9 @@ class PhotogrammetryView(QWidget):
         self._create_photogrammetry_photos()
         #self._create_photogrammetry_model()
 
-    #todo: error: The camera device has been physically removed. : RuntimeException thrown (file 'instantcameraimpl.h', line 2111)
     #todo: vypnout ovládání driverů při photogrammetrii
     def _create_photogrammetry_photos(self):
+        self.change_button_states(False)
         self.drivers.move_to_beginning()
         self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos")
         time.sleep(12)
@@ -107,6 +115,8 @@ class PhotogrammetryView(QWidget):
             while not self.cams_ready:
                 time.sleep(0.05)
             self.drivers.move_step(80)
+
+        self.change_button_states(True)
 
     def _create_photogrammetry_model(self):
         result_folder_path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}"
@@ -214,7 +224,10 @@ class PhotogrammetryView(QWidget):
             self._set_point_cloud_settings(4, 3)
             self._set_model_settings(3)
         else:
-            pass
+            self._set_alignment_settings()
+            self._set_point_cloud_settings()
+            self._set_model_settings()
+            self._set_texture_settings()
 
     def _set_alignment_settings(self,downscale, keypoint, tiepoint):
         self.photo_align_settings["downscale"] = downscale
@@ -246,8 +259,16 @@ class PhotogrammetryView(QWidget):
         self.texture_settings["blending"] = blending_mode
         self.texture_settings["size"] = texture_size
 
+    def change_button_states(self, state):
+        self.ui.start_new_phtgrm_btn.setEnabled(state)
+        self.ui.continue_phtgrm_btn.setEnabled(state)
+
     def _update_progressbar(self, value):
         self.ui.progressBar.setValue(round(value, 1))
+
+    def _update_photogrammetry_table(self):
+        photogrammetry_plans = extract_data_from_csv("./App_data/Test_plan/planned_photogrammetry.csv")
+        populate_table(self.ui.tableWidget, photogrammetry_plans)
 
     def set_path(self, path):
         self.result_path = os.path.join(path, "fotogrammetrie")

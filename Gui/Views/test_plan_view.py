@@ -1,16 +1,17 @@
-import os
-import csv
 import time
+import csv
+import os
 
+
+from Qt_files.Qt_python.ui_test_plan_view import Ui_Form
+from Controllers.logo_controller import LogoController
+from Utils.number_validator import FloatValidator
+from Utils.csv_work import extract_data_from_csv
+from Utils.ui_workers import populate_table
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Signal
 from datetime import datetime
 from threading import Thread
-
-from PySide6.QtCore import Signal
-from Utils.csv_work import extract_data_from_csv
-from Utils.number_validator import FloatValidator
-from Controllers.logo_controller import LogoController
-from Qt_files.Qt_python.ui_test_plan_view import Ui_Form
-from PySide6.QtWidgets import QWidget, QTableWidgetItem
 
 
 class TestPlanView(QWidget):
@@ -92,8 +93,8 @@ class TestPlanView(QWidget):
     def update_tabs(self):
         flow_plans = extract_data_from_csv("./App_data/Test_plan/planned_flow.csv")
         cam_plans = extract_data_from_csv("./App_data/Test_plan/cam_plans.csv")
-        self.populate_table(self.ui.flow_tw, flow_plans)
-        self.populate_table(self.ui.cam_plans_tw, cam_plans)
+        populate_table(self.ui.flow_tw, flow_plans)
+        populate_table(self.ui.cam_plans_tw, cam_plans)
 
     def set_path(self, path: str):
         self.path = path
@@ -102,15 +103,6 @@ class TestPlanView(QWidget):
         self.ui.send_through_btn.setEnabled(state)
         self.ui.start_plan_btn.setEnabled(state)
         self.ui.continue_plan_btn.setEnabled(state)
-
-    def populate_table(self,table, data):
-        table.setRowCount(0)  # Clear existing rows
-        for row_data in data:
-            row_position = table.rowCount()
-            table.insertRow(row_position)
-            for column, value in enumerate(row_data):
-                item = QTableWidgetItem(str(value))
-                table.setItem(row_position, column, item)
 
     def show_testplan_lbl(self, state):
         self.ui.running_testplan_lbl.setVisible(state)

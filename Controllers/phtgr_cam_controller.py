@@ -1,10 +1,10 @@
 import time
-from threading import Thread
-from typing import List
 
 from Controllers.cam_controller import CamController
 from PySide6.QtCore import QObject, Signal
+from threading import Thread
 from pypylon import pylon
+from typing import List
 
 
 class PhtgrCamController(QObject):
@@ -26,12 +26,10 @@ class PhtgrCamController(QObject):
     def _initialize_cameras(self):
         cam_list = pylon.TlFactory.GetInstance().EnumerateDevices()
         cam_list = sorted(cam_list, key=lambda camera: camera.GetFriendlyName())
-        count = 0
 
-        for camera in cam_list:
+        for index, camera in enumerate(cam_list):
             try:
-                cam = CamController(camera, count)
-                count += 1
+                cam = CamController(camera, index)
                 self.cam_list.append(cam)
             except Exception as e:
                 print(e)
