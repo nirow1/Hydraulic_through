@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'test_plan_viewHMzecg.ui'
+## Form generated from reading UI file 'test_plan_viewCCSEeW.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -75,16 +75,17 @@ class Ui_Form(object):
 "")
         self.horizontalLayout_10 = QHBoxLayout(self.widget_13)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
         self.running_phtgr_lbl = QLabel(self.widget_13)
         self.running_phtgr_lbl.setObjectName(u"running_phtgr_lbl")
-        self.running_phtgr_lbl.setMaximumSize(QSize(300, 16777215))
+        self.running_phtgr_lbl.setMaximumSize(QSize(300, 25))
         self.running_phtgr_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_10.addWidget(self.running_phtgr_lbl)
 
         self.running_testplan_lbl = QLabel(self.widget_13)
         self.running_testplan_lbl.setObjectName(u"running_testplan_lbl")
-        self.running_testplan_lbl.setMaximumSize(QSize(300, 16777215))
+        self.running_testplan_lbl.setMaximumSize(QSize(300, 25))
         self.running_testplan_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_10.addWidget(self.running_testplan_lbl)

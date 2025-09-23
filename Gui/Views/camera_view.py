@@ -15,11 +15,11 @@ from datetime import datetime
 from threading import Thread
 from pypylon import pylon
 
+from Utils.ui_workers import update_progressbar
+
 
 class CameraView(QWidget):
-    progress_signal = Signal( int, int)
-    _orthophoto_done = Signal()
-    set_current_action_lbl = Signal(str)
+    CAMS_WORKING = Signal(bool)
 
     def __init__(self, drivers):
         QWidget.__init__(self)
@@ -34,6 +34,11 @@ class CameraView(QWidget):
 
         self.current_img_1= np.array([])
         self.current_img_2= np.array([])
+
+        #class signals
+        self.progress_signal = Signal(object, int, int)
+        self.orthophoto_done = Signal()
+        self.set_current_action_lbl = Signal(str)
 
         self.progress = 0
         self.path = ""
@@ -79,8 +84,8 @@ class CameraView(QWidget):
         self.ui.start_ortophoto_btn.clicked.connect(lambda: self.make_orthophoto_image())
 
     def _bind_emits(self):
-        self.progress_signal.connect(self._update_progressbar)
-        self._orthophoto_done.connect(self.orthophoto_ended)
+        self.progress_signal.connect(update_progressbar)
+        self.orthophoto_done.connect(self.orthophoto_ended)
         self.set_current_action_lbl.connect(self._change_action_lbl)
 
     #todo: odpojit kamery při photogrammetrii
@@ -120,7 +125,7 @@ class CameraView(QWidget):
         self.cam_2.reconnect()
 
     def make_orthophoto_image(self,quality = None, blocking=False):
-        self._change_buttons_state(False)
+        self.change_movement_buttons_state(False)
         self.set_current_action_lbl.emit("Pohyb kamer na pozici")
         self.op_quality = quality if quality is not None else self.quality_dic[self.ui.orthophoto_quality_cb.currentText()]
 
@@ -148,7 +153,7 @@ class CameraView(QWidget):
 
             time.sleep(2)
             cv2.imwrite(f"./App_data/Orthophoto/image_{i}.png", self.current_img_1)
-            self.progress_signal.emit(i, photo_number)
+            self.progress_signal.emit(self.ui.orthophoto_pb, i, photo_number)
 
         self.cam.set_frame_rate(2)
         self._process_orthophoto_image()
@@ -180,7 +185,7 @@ class CameraView(QWidget):
             print(i)
             time.sleep(0.5)
             self._save_photo(cam_id, f"video_{cam_id}_{dir_time}/snimek")
-            self.progress_signal.emit(i, 90)
+            self.progress_signal.emit(self.ui.orthophoto_pb, i, 90)
 
     def _process_orthophoto_image(self):
         image_folder = "./App_data/Orthophoto"
@@ -190,7 +195,7 @@ class CameraView(QWidget):
         strips = []
         for i, img_file in enumerate(image_files[::-1]):
             img_path = os.path.join(image_folder, img_file)
-            self.progress_signal.emit(i, len(image_files))
+            self.progress_signal.emit(self.ui.orthophoto_pb,i, len(image_files))
             img = cv2.imread(img_path)
 
             # Define cropping parameters (adjust height fraction as needed)
@@ -202,25 +207,16 @@ class CameraView(QWidget):
 
         merged_image = np.vstack(strips)
 
-        self._orthophoto_done.emit()
+        self.orthophoto_done.emit()
 
         name = "Orthophoto_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
         cv2.imwrite(f"{self.path}/{name}.png", merged_image)
-
-    def _update_progressbar(self, current: int, total: int):
-        if total <= 0:
-            percent = 0
-        else:
-            percent = int((current / (total-1)) * 100)
-        percent = max(0, min(100, percent))
-
-        self.ui.orthophoto_pb.setValue(percent)
 
     def set_path(self, path: str):
         self.path = path
 
     def orthophoto_ended(self):
-        self._change_buttons_state(True)
+        self.change_movement_buttons_state(True)
         self.set_current_action_lbl.emit("Hotovo")
         self.drivers.move_to_beginning()
 
@@ -268,7 +264,8 @@ class CameraView(QWidget):
     def stop_moving(self):
         self.drivers.stop_jog()
 
-    def _change_buttons_state(self, state):
+    def change_movement_buttons_state(self, state):
+        self.CAMS_WORKING.emit(not state)
         self.ui.start_ortophoto_btn.setEnabled(state)
         self.ui.up_btn.setEnabled(state)
         self.ui.down_btn.setEnabled(state)

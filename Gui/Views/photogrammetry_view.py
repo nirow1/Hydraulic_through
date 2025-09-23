@@ -1,13 +1,13 @@
-#import Metashape
+import Metashape
 import time
 import csv
 import os
 
 from Controllers.phtgr_cam_controller import PhtgrCamController
+from Utils.ui_workers import populate_table, update_progressbar
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
 from Controllers.driver_controller import DriverController
 from Utils.csv_work import extract_data_from_csv
-from Utils.ui_workers import populate_table
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Signal
 from threading import Thread
@@ -15,11 +15,7 @@ from threading import Thread
 
 class PhotogrammetryView(QWidget):
     PHTGR_RUNNING = Signal(bool)
-    aligning_photos = Signal()
-    creating_point_cloud = Signal()
-    creating_model = Signal()
-    building_texture = Signal()
-    progress = Signal(float)
+    CAMS_WORKING = Signal()
 
     def __init__(self, drivers):
 
@@ -37,6 +33,13 @@ class PhotogrammetryView(QWidget):
         self.chunk = None#self.doc.addChunk()
         self.quality = None
 
+        #calss signals
+        self.aligning_photos = Signal()
+        self.creating_point_cloud = Signal()
+        self.creating_model = Signal()
+        self.building_texture = Signal()
+        self.progress_signal = Signal(object, int, int)
+
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
         self.point_cloud_setting = {"downscale": 0, "filter": 0}
         self.texture_settings = {"blending": 0, "size": 0}
@@ -48,18 +51,9 @@ class PhotogrammetryView(QWidget):
         self._bind_emits()
 
     def _initial_graphical_changes(self):
-        for i in range(5):
-            self.ui.tableWidget.setColumnWidth(i, 39)
         self.ui.tableWidget.verticalHeader().setVisible(False)
         self.ui.widget_28.setVisible(False)
-
-        self.ui.alignment_downscale_cb.addItems(["1","2","3","4"])
-        self.ui.cloud_downscale_cb.addItems(["1","2","3","4","5","6","7","8"])
-        self.ui.filter_cb.addItems(["bez filtru","střední filtr","Agresivní filtr"])
-        self.ui.face_count_cb.addItems(["Vysoký","Střední","Nízký"])
-        self.ui.blending_mode_cb.addItems(["Mosaic","Average"])
-        self.ui.texture_size.addItems(["8192","4096","1024"])
-
+        self.ui.photogrammetry_running_lbl.setVisible(False)
 
     #todo: přidat přehled o časové náročnosti
     #todo: pridat chb na mazání filů po skončení phtotogrammetrie
@@ -73,16 +67,15 @@ class PhotogrammetryView(QWidget):
         self.creating_point_cloud.connect(lambda: self.ui.progress_lbl.setText("Creating point could"))
         self.creating_model.connect(lambda: self.ui.progress_lbl.setText("Creating model"))
         self.building_texture.connect(lambda: self.ui.progress_lbl.setText("Building texture"))
-        self.progress.connect(self._update_progressbar)
+        self.progress_signal.connect(update_progressbar)
 
     def _change_cams_state(self, state: bool):
         self.cams_ready = state
 
-    #todo: přidat zbírání fotek do progressbaru
     #todo: možnost vypnout photogrammetrii
     def start_photogrammetry(self,quality=None, blocking=False):
         self._create_directory()
-        self.PHTGR_RUNNING.emit(True)
+        self._photogrammetry_running(True)
         self._update_photogrammetry_table()
         self.quality = quality
         self._set_quality(quality) #todo: toto zjistit zda funguje správně
@@ -102,10 +95,10 @@ class PhotogrammetryView(QWidget):
         self._create_photogrammetry_photos()
         #self._create_photogrammetry_model()
 
-    #todo: vypnout ovládání driverů při photogrammetrii
     def _create_photogrammetry_photos(self):
         self.change_button_states(False)
         self.drivers.move_to_beginning()
+        self.CAMS_WORKING.emit(True)
         self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos")
         time.sleep(12)
         for i in range(80):
@@ -115,7 +108,9 @@ class PhotogrammetryView(QWidget):
             while not self.cams_ready:
                 time.sleep(0.05)
             self.drivers.move_step(80)
+            self.progress_signal.emit(self.ui.progressBar, i, 80)
 
+        self.CAMS_WORKING.emit(False)
         self.change_button_states(True)
 
     def _create_photogrammetry_model(self):
@@ -127,7 +122,7 @@ class PhotogrammetryView(QWidget):
             self.build_texture(result_folder_path)
         self.export_results()
         self.doc.remove(self.chunk)
-        self.PHTGR_RUNNING.emit(False)
+        self._photogrammetry_running(False)
         #self.chunk = None
 
     def _align_photos(self, result_folder_path):
@@ -176,7 +171,7 @@ class PhotogrammetryView(QWidget):
         )
 
     def progress_callback(self, info):
-        self.progress.emit(info)
+        self.progress_signal.emit(self.ui.progressBar, info, 80000)
 
     def _create_photogrammetry_record(self):
         file_path = "./App_data/Test_plan/planned_photogrammetry.csv"
@@ -211,60 +206,67 @@ class PhotogrammetryView(QWidget):
             self.current_project_id = last_id
 
     def _set_quality(self, quality=None):
-        if quality == 1:
+        if quality == 1:  # High
             self._set_alignment_settings(1, 80000, 20000)
-            self._set_point_cloud_settings(1, 2)
-            self._set_model_settings(1)
-        elif quality == 2:
+            self._set_point_cloud_settings(1, "Bez filtru")
+            self._set_model_settings("Vysoký")
+        elif quality == 2:  # Medium
             self._set_alignment_settings(2, 40000, 10000)
-            self._set_point_cloud_settings(2, 2)
-            self._set_model_settings(2)
-        elif quality == 3:
+            self._set_point_cloud_settings(2, "Střední filtr")
+            self._set_model_settings("Střední")
+        elif quality == 3:  # Low
             self._set_alignment_settings(4, 20000, 2000)
-            self._set_point_cloud_settings(4, 3)
-            self._set_model_settings(3)
-        else:
-            self._set_alignment_settings()
-            self._set_point_cloud_settings()
-            self._set_model_settings()
-            self._set_texture_settings()
+            self._set_point_cloud_settings(4, "Střední filtr")
+            self._set_model_settings("Nízký")
+        else:  # Custom from UI
+            self._set_alignment_settings(
+                int(self.ui.alignment_downscale_cb.itemText()),
+                int(self.ui.keypoint_le.text()),
+                int(self.ui.tiepoint_le.text())
+            )
+            self._set_point_cloud_settings(
+                int(self.ui.cloud_downscale_cb.itemText()),
+                self.ui.filter_cb.itemText()
+            )
+            self._set_model_settings(self.ui.face_count_cb.itemText())
+            if self.ui.texture_chb.isChecked():
+                self._set_texture_settings()
 
-    def _set_alignment_settings(self,downscale, keypoint, tiepoint):
+    def _set_alignment_settings(self, downscale, keypoint, tiepoint):
         self.photo_align_settings["downscale"] = downscale
         self.photo_align_settings["keypoint"] = keypoint
         self.photo_align_settings["tiepoint"] = tiepoint
 
-    def _set_point_cloud_settings(self, downscale, filter):
+    def _set_point_cloud_settings(self, downscale, filter: str):
         self.point_cloud_setting["downscale"] = downscale
-        if filter == 1:
+        if filter == "Bez filtru":
             self.point_cloud_setting["filter"] = Metashape.NoFiltering
-        elif filter == 2:
+        elif filter == "Střední filtr":
             self.point_cloud_setting["filter"] = Metashape.MildFiltering
-        elif filter == 3:
+        elif filter == "Agresivní filtr":
             self.point_cloud_setting["filter"] = Metashape.AggressiveFiltering
-        else:
-            self.point_cloud_setting["filter"] = filter
 
-    def _set_model_settings(self, face_count):
-        if face_count == 1:
+    def _set_model_settings(self, face_count: str):
+        if face_count == "Vysoký":
             self.mesh_face_count = Metashape.HighFaceCount
-        elif face_count == 2:
+        elif face_count == "Střední":
             self.mesh_face_count = Metashape.MediumFaceCount
-        elif face_count == 3:
+        elif face_count == "Nízký":
             self.mesh_face_count = Metashape.LowFaceCount
-        else:
-            self.mesh_face_count = face_count
 
-    def _set_texture_settings(self, blending_mode, texture_size):
-        self.texture_settings["blending"] = blending_mode
-        self.texture_settings["size"] = texture_size
+    def _set_texture_settings(self):
+        blending_mode = self.ui.blending_mode_cb.itemText()
+        if blending_mode == "Mosaic":
+            self.texture_settings["blending"] = Metashape.MosaicBlending
+        elif blending_mode == "Average":
+            self.texture_settings["blending"] = Metashape.AverageBlending
+
+        self.texture_settings["size"] = int(self.ui.texture_size.itemText())
 
     def change_button_states(self, state):
+        self.CAMS_WORKING.emit(not state)
         self.ui.start_new_phtgrm_btn.setEnabled(state)
         self.ui.continue_phtgrm_btn.setEnabled(state)
-
-    def _update_progressbar(self, value):
-        self.ui.progressBar.setValue(round(value, 1))
 
     def _update_photogrammetry_table(self):
         photogrammetry_plans = extract_data_from_csv("./App_data/Test_plan/planned_photogrammetry.csv")
@@ -272,6 +274,10 @@ class PhotogrammetryView(QWidget):
 
     def set_path(self, path):
         self.result_path = os.path.join(path, "fotogrammetrie")
+
+    def _photogrammetry_running(self, state):
+        self.PHTGR_RUNNING.emit(False)
+        self.ui.photogrammetry_running_lbl.setVisible(False)
 
     def disconnect(self):
         self.cameras.stop_recording()

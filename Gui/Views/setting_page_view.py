@@ -74,6 +74,8 @@ class SettingsView(QWidget):
         name = "/vysledky_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
         path = self.ui.set_saving_path_le.text() if self.ui.set_saving_path_le.text() != "" else "./"
 
+        self.ui.current_saving_path_lbl.setText(self.ui.set_saving_path_le.text() if self.ui.set_saving_path_le.text() != "" else os.getcwd())
+
         full_path = path + name
         os.makedirs(full_path)
 

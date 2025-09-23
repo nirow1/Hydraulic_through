@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'settings_viewsaJFNn.ui'
+## Form generated from reading UI file 'settings_viewiSAPBO.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -79,34 +79,67 @@ class Ui_Form(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.widget_15 = QWidget(self.widget_49)
         self.widget_15.setObjectName(u"widget_15")
-        self.widget_15.setMaximumSize(QSize(16777215, 70))
-        self.horizontalLayout_8 = QHBoxLayout(self.widget_15)
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_9 = QLabel(self.widget_15)
+        self.widget_15.setMaximumSize(QSize(16777215, 80))
+        self.verticalLayout_4 = QVBoxLayout(self.widget_15)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(5, 3, 5, 3)
+        self.widget_2 = QWidget(self.widget_15)
+        self.widget_2.setObjectName(u"widget_2")
+        self.widget_2.setMinimumSize(QSize(0, 0))
+        self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.label_9 = QLabel(self.widget_2)
         self.label_9.setObjectName(u"label_9")
 
-        self.horizontalLayout_8.addWidget(self.label_9)
+        self.horizontalLayout_2.addWidget(self.label_9)
 
-        self.set_saving_path_le = QLineEdit(self.widget_15)
+        self.set_saving_path_le = QLineEdit(self.widget_2)
         self.set_saving_path_le.setObjectName(u"set_saving_path_le")
         self.set_saving_path_le.setEnabled(False)
         self.set_saving_path_le.setMinimumSize(QSize(0, 35))
+        self.set_saving_path_le.setMaximumSize(QSize(16777215, 35))
 
-        self.horizontalLayout_8.addWidget(self.set_saving_path_le)
+        self.horizontalLayout_2.addWidget(self.set_saving_path_le)
 
-        self.save_path_dir_btn = QPushButton(self.widget_15)
+        self.save_path_dir_btn = QPushButton(self.widget_2)
         self.save_path_dir_btn.setObjectName(u"save_path_dir_btn")
-        self.save_path_dir_btn.setMinimumSize(QSize(40, 35))
+        self.save_path_dir_btn.setMinimumSize(QSize(40, 0))
+        self.save_path_dir_btn.setMaximumSize(QSize(16777215, 35))
         self.save_path_dir_btn.setIconSize(QSize(40, 35))
 
-        self.horizontalLayout_8.addWidget(self.save_path_dir_btn)
+        self.horizontalLayout_2.addWidget(self.save_path_dir_btn)
 
-        self.set_saving_path_btn = QPushButton(self.widget_15)
+        self.set_saving_path_btn = QPushButton(self.widget_2)
         self.set_saving_path_btn.setObjectName(u"set_saving_path_btn")
         self.set_saving_path_btn.setMinimumSize(QSize(70, 0))
         self.set_saving_path_btn.setMaximumSize(QSize(16777215, 35))
 
-        self.horizontalLayout_8.addWidget(self.set_saving_path_btn)
+        self.horizontalLayout_2.addWidget(self.set_saving_path_btn)
+
+
+        self.verticalLayout_4.addWidget(self.widget_2)
+
+        self.widget_3 = QWidget(self.widget_15)
+        self.widget_3.setObjectName(u"widget_3")
+        self.widget_3.setMaximumSize(QSize(16777215, 25))
+        self.horizontalLayout_3 = QHBoxLayout(self.widget_3)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.label = QLabel(self.widget_3)
+        self.label.setObjectName(u"label")
+        self.label.setMaximumSize(QSize(126, 16777215))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.horizontalLayout_3.addWidget(self.label)
+
+        self.current_saving_path_lbl = QLabel(self.widget_3)
+        self.current_saving_path_lbl.setObjectName(u"current_saving_path_lbl")
+
+        self.horizontalLayout_3.addWidget(self.current_saving_path_lbl)
+
+
+        self.verticalLayout_4.addWidget(self.widget_3)
 
 
         self.verticalLayout_3.addWidget(self.widget_15)
@@ -116,6 +149,7 @@ class Ui_Form(object):
         self.widget_14.setMaximumSize(QSize(16777215, 70))
         self.horizontalLayout_7 = QHBoxLayout(self.widget_14)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setContentsMargins(5, 3, 5, 3)
         self.label_8 = QLabel(self.widget_14)
         self.label_8.setObjectName(u"label_8")
 
@@ -236,6 +270,8 @@ class Ui_Form(object):
         self.label_9.setText(QCoreApplication.translate("Form", u"Nastaven\u00ed ulo\u017ei\u0161t\u011b:", None))
         self.save_path_dir_btn.setText("")
         self.set_saving_path_btn.setText(QCoreApplication.translate("Form", u"Nastavit", None))
+        self.label.setText(QCoreApplication.translate("Form", u"Aktu\u00e1ln\u00ed ulo\u017ei\u0161t\u011b: ", None))
+        self.current_saving_path_lbl.setText(QCoreApplication.translate("Form", u"./", None))
         self.label_8.setText(QCoreApplication.translate("Form", u"Na\u010d\u00edst pl\u00e1n:", None))
         self.xml_file_dir_btn.setText("")
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)

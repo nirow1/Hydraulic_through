@@ -81,6 +81,9 @@ class MainWindow(QMainWindow):
         self.change_next_flow.connect(lambda flow: self.test_plan_view.update_next_planed_change(flow[0], flow[1], flow[2]))
         self.update_tabs.connect(self.test_plan_view.update_tabs)
 
+        self.photogrammetry_view.CAMS_WORKING.connect(self._change_movement_state)
+        self.camera_view.CAMS_WORKING.connect(self._change_movement_state)
+
     def _set_save_path(self, path):
         self.camera_view.set_path(path)
         self.photogrammetry_view.set_path(path)
@@ -164,6 +167,10 @@ class MainWindow(QMainWindow):
     def _change_button_state(self, state):
         self.test_plan_view.change_button_state(state)
         self.settings_view.change_button_status(state)
+
+    def _change_movement_state(self, state):
+        self.camera_view.change_movement_buttons_state(state)
+        self.photogrammetry_view.change_button_states(state)
 
     def _show_photogrammetry_lbl(self, state):
         self.test_plan_view.show_photogrammetry_lbl(state)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Photogrammetry_viewZySqpm.ui'
+## Form generated from reading UI file 'Photogrammetry_viewhVqUfO.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -66,6 +66,21 @@ class Ui_Form(object):
         self.widget_9 = QWidget(Form)
         self.widget_9.setObjectName(u"widget_9")
         self.widget_9.setMaximumSize(QSize(16777215, 70))
+        self.widget_9.setStyleSheet(u"QLabel {\n"
+"    background-color: #4CAF50;\n"
+"    border-radius: 7px;\n"
+"    color: white; /* Optional: makes the text readable on red */\n"
+"}\n"
+"")
+        self.horizontalLayout_9 = QHBoxLayout(self.widget_9)
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.photogrammetry_running_lbl = QLabel(self.widget_9)
+        self.photogrammetry_running_lbl.setObjectName(u"photogrammetry_running_lbl")
+        self.photogrammetry_running_lbl.setMaximumSize(QSize(300, 25))
+        self.photogrammetry_running_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_9.addWidget(self.photogrammetry_running_lbl)
+
 
         self.verticalLayout.addWidget(self.widget_9)
 
@@ -107,6 +122,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.tableWidget.sizePolicy().hasHeightForWidth())
         self.tableWidget.setSizePolicy(sizePolicy)
         self.tableWidget.setMaximumSize(QSize(200, 16777215))
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(39)
 
         self.verticalLayout_3.addWidget(self.tableWidget)
 
@@ -117,6 +133,18 @@ class Ui_Form(object):
         self.horizontalLayout_5 = QHBoxLayout(self.widget_1)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.label_18 = QLabel(self.widget_1)
+        self.label_18.setObjectName(u"label_18")
+
+        self.horizontalLayout_5.addWidget(self.label_18)
+
+        self.delete_files_chb = AnimatedToggle(self.widget_1)
+        self.delete_files_chb.setObjectName(u"delete_files_chb")
+        self.delete_files_chb.setMaximumSize(QSize(65, 16777215))
+        self.delete_files_chb.setChecked(True)
+
+        self.horizontalLayout_5.addWidget(self.delete_files_chb)
+
 
         self.verticalLayout_3.addWidget(self.widget_1)
 
@@ -160,6 +188,10 @@ class Ui_Form(object):
         self.verticalLayout_12.addWidget(self.label_9)
 
         self.alignment_downscale_cb = QComboBox(self.widget_21)
+        self.alignment_downscale_cb.addItem("")
+        self.alignment_downscale_cb.addItem("")
+        self.alignment_downscale_cb.addItem("")
+        self.alignment_downscale_cb.addItem("")
         self.alignment_downscale_cb.setObjectName(u"alignment_downscale_cb")
         self.alignment_downscale_cb.setMaximumSize(QSize(16777215, 30))
 
@@ -246,6 +278,14 @@ class Ui_Form(object):
         self.verticalLayout_15.addWidget(self.label_12)
 
         self.cloud_downscale_cb = QComboBox(self.widget_24)
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
+        self.cloud_downscale_cb.addItem("")
         self.cloud_downscale_cb.setObjectName(u"cloud_downscale_cb")
         self.cloud_downscale_cb.setMaximumSize(QSize(16777215, 30))
 
@@ -265,6 +305,9 @@ class Ui_Form(object):
         self.verticalLayout_16.addWidget(self.label_13)
 
         self.filter_cb = QComboBox(self.widget_25)
+        self.filter_cb.addItem("")
+        self.filter_cb.addItem("")
+        self.filter_cb.addItem("")
         self.filter_cb.setObjectName(u"filter_cb")
         self.filter_cb.setMaximumSize(QSize(16777215, 30))
 
@@ -307,6 +350,9 @@ class Ui_Form(object):
         self.verticalLayout_17.addWidget(self.label_14)
 
         self.face_count_cb = QComboBox(self.widget_27)
+        self.face_count_cb.addItem("")
+        self.face_count_cb.addItem("")
+        self.face_count_cb.addItem("")
         self.face_count_cb.setObjectName(u"face_count_cb")
         self.face_count_cb.setMaximumSize(QSize(16777215, 30))
 
@@ -344,12 +390,12 @@ class Ui_Form(object):
         self.horizontalLayout_8 = QHBoxLayout(self.widget_20)
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
-        self.label_7 = QLabel(self.widget_20)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setMaximumSize(QSize(50, 16777215))
-        self.label_7.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.label_8 = QLabel(self.widget_20)
+        self.label_8.setObjectName(u"label_8")
+        self.label_8.setMaximumSize(QSize(50, 16777215))
+        self.label_8.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.horizontalLayout_8.addWidget(self.label_7)
+        self.horizontalLayout_8.addWidget(self.label_8)
 
         self.texture_chb = AnimatedToggle(self.widget_20)
         self.texture_chb.setObjectName(u"texture_chb")
@@ -357,11 +403,12 @@ class Ui_Form(object):
 
         self.horizontalLayout_8.addWidget(self.texture_chb)
 
-        self.label_8 = QLabel(self.widget_20)
-        self.label_8.setObjectName(u"label_8")
-        self.label_8.setMaximumSize(QSize(50, 16777215))
+        self.label_7 = QLabel(self.widget_20)
+        self.label_7.setObjectName(u"label_7")
+        self.label_7.setMaximumSize(QSize(50, 16777215))
+        self.label_7.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
-        self.horizontalLayout_8.addWidget(self.label_8)
+        self.horizontalLayout_8.addWidget(self.label_7)
 
 
         self.verticalLayout_8.addWidget(self.widget_20)
@@ -398,6 +445,8 @@ class Ui_Form(object):
         self.verticalLayout_19.addWidget(self.label_16)
 
         self.blending_mode_cb = QComboBox(self.widget_29)
+        self.blending_mode_cb.addItem("")
+        self.blending_mode_cb.addItem("")
         self.blending_mode_cb.setObjectName(u"blending_mode_cb")
         self.blending_mode_cb.setMaximumSize(QSize(16777215, 30))
 
@@ -417,6 +466,9 @@ class Ui_Form(object):
         self.verticalLayout_20.addWidget(self.label_17)
 
         self.texture_size = QComboBox(self.widget_26)
+        self.texture_size.addItem("")
+        self.texture_size.addItem("")
+        self.texture_size.addItem("")
         self.texture_size.setObjectName(u"texture_size")
         self.texture_size.setMaximumSize(QSize(16777215, 30))
 
@@ -450,13 +502,40 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.widget_8 = QWidget(self.widget_6)
         self.widget_8.setObjectName(u"widget_8")
-        self.widget_8.setMaximumSize(QSize(330, 100))
+        self.widget_8.setMaximumSize(QSize(550, 100))
         self.horizontalLayout_7 = QHBoxLayout(self.widget_8)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
         self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.widget_30 = QWidget(self.widget_8)
+        self.widget_30.setObjectName(u"widget_30")
+        self.widget_30.setMaximumSize(QSize(200, 16777215))
+        self.widget_30.setStyleSheet(u"QPushButton {\n"
+"    border-radius: 10px;\n"
+"    border: 1px solid #FF3636;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: rgb(230, 230, 230);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #FF2626;\n"
+"}")
+        self.horizontalLayout_10 = QHBoxLayout(self.widget_30)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
+        self.Stop_photogrammetry_btn = QPushButton(self.widget_30)
+        self.Stop_photogrammetry_btn.setObjectName(u"Stop_photogrammetry_btn")
+        self.Stop_photogrammetry_btn.setMaximumSize(QSize(200, 40))
+
+        self.horizontalLayout_10.addWidget(self.Stop_photogrammetry_btn)
+
+
+        self.horizontalLayout_7.addWidget(self.widget_30)
+
         self.start_new_phtgrm_btn = QPushButton(self.widget_8)
         self.start_new_phtgrm_btn.setObjectName(u"start_new_phtgrm_btn")
-        self.start_new_phtgrm_btn.setMaximumSize(QSize(160, 40))
+        self.start_new_phtgrm_btn.setMaximumSize(QSize(170, 40))
 
         self.horizontalLayout_7.addWidget(self.start_new_phtgrm_btn)
 
@@ -534,6 +613,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.photogrammetry_running_lbl.setText(QCoreApplication.translate("Form", u"Photogrammetrie b\u011b\u017e\u00ed", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Datab\u00e1ze photogrametri\u00ed", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"ID", None));
@@ -545,22 +625,54 @@ class Ui_Form(object):
         ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"M", None));
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"T", None));
+        self.label_18.setText(QCoreApplication.translate("Form", u"Maz\u00e1n\u00ed po ukon\u010den\u00ed", None))
+        self.delete_files_chb.setText("")
         self.label_3.setText(QCoreApplication.translate("Form", u"Zarovn\u00e1n\u00ed fotek", None))
         self.label_9.setText(QCoreApplication.translate("Form", u"Downscale:", None))
+        self.alignment_downscale_cb.setItemText(0, QCoreApplication.translate("Form", u"1", None))
+        self.alignment_downscale_cb.setItemText(1, QCoreApplication.translate("Form", u"2", None))
+        self.alignment_downscale_cb.setItemText(2, QCoreApplication.translate("Form", u"3", None))
+        self.alignment_downscale_cb.setItemText(3, QCoreApplication.translate("Form", u"4", None))
+
         self.label_10.setText(QCoreApplication.translate("Form", u"Keypoint (0 - 80,000+):", None))
         self.label_11.setText(QCoreApplication.translate("Form", u"Tiepoint (0 - 20,000):", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Point cloud", None))
         self.label_12.setText(QCoreApplication.translate("Form", u"Downscale:", None))
+        self.cloud_downscale_cb.setItemText(0, QCoreApplication.translate("Form", u"1", None))
+        self.cloud_downscale_cb.setItemText(1, QCoreApplication.translate("Form", u"2", None))
+        self.cloud_downscale_cb.setItemText(2, QCoreApplication.translate("Form", u"3", None))
+        self.cloud_downscale_cb.setItemText(3, QCoreApplication.translate("Form", u"4", None))
+        self.cloud_downscale_cb.setItemText(4, QCoreApplication.translate("Form", u"5", None))
+        self.cloud_downscale_cb.setItemText(5, QCoreApplication.translate("Form", u"6", None))
+        self.cloud_downscale_cb.setItemText(6, QCoreApplication.translate("Form", u"7", None))
+        self.cloud_downscale_cb.setItemText(7, QCoreApplication.translate("Form", u"8", None))
+
         self.label_13.setText(QCoreApplication.translate("Form", u"Filter:", None))
+        self.filter_cb.setItemText(0, QCoreApplication.translate("Form", u"Bez filtru", None))
+        self.filter_cb.setItemText(1, QCoreApplication.translate("Form", u"St\u0159edn\u00ed filtr", None))
+        self.filter_cb.setItemText(2, QCoreApplication.translate("Form", u"Agresivn\u00ed filtr", None))
+
         self.label_5.setText(QCoreApplication.translate("Form", u"Tvorba modelu", None))
         self.label_14.setText(QCoreApplication.translate("Form", u"Face count:", None))
+        self.face_count_cb.setItemText(0, QCoreApplication.translate("Form", u"Vysok\u00fd", None))
+        self.face_count_cb.setItemText(1, QCoreApplication.translate("Form", u"St\u0159edn\u00ed", None))
+        self.face_count_cb.setItemText(2, QCoreApplication.translate("Form", u"Nizk\u00fd", None))
+
         self.label_6.setText(QCoreApplication.translate("Form", u"Tvorba textury", None))
-        self.label_7.setText(QCoreApplication.translate("Form", u"On", None))
-        self.texture_chb.setText("")
         self.label_8.setText(QCoreApplication.translate("Form", u"Off", None))
+        self.texture_chb.setText("")
+        self.label_7.setText(QCoreApplication.translate("Form", u"On", None))
         self.label_15.setText(QCoreApplication.translate("Form", u"Mapping mode:", None))
         self.label_16.setText(QCoreApplication.translate("Form", u"Blending mode:", None))
+        self.blending_mode_cb.setItemText(0, QCoreApplication.translate("Form", u"Mosaic", None))
+        self.blending_mode_cb.setItemText(1, QCoreApplication.translate("Form", u"Average", None))
+
         self.label_17.setText(QCoreApplication.translate("Form", u"Texture size (0 - 4096):", None))
+        self.texture_size.setItemText(0, QCoreApplication.translate("Form", u"8192", None))
+        self.texture_size.setItemText(1, QCoreApplication.translate("Form", u"4096", None))
+        self.texture_size.setItemText(2, QCoreApplication.translate("Form", u"1024", None))
+
+        self.Stop_photogrammetry_btn.setText(QCoreApplication.translate("Form", u"Zastavit Photogrammetrii", None))
         self.start_new_phtgrm_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt photogrammetrii", None))
         self.continue_phtgrm_btn.setText(QCoreApplication.translate("Form", u"pokra\u010dovat", None))
         self.label.setText(QCoreApplication.translate("Form", u"Pr\u016fb\u011bh fotogrammetrie:", None))
