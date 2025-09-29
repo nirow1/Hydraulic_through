@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'settings_viewiSAPBO.ui'
+## Form generated from reading UI file 'settings_viewXevxuS.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -77,6 +77,27 @@ class Ui_Form(object):
         self.widget_49.setMinimumSize(QSize(0, 50))
         self.verticalLayout_3 = QVBoxLayout(self.widget_49)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.error_mesage_lbl = QWidget(self.widget_49)
+        self.error_mesage_lbl.setObjectName(u"error_mesage_lbl")
+        self.error_mesage_lbl.setMaximumSize(QSize(16777215, 25))
+        self.error_mesage_lbl.setStyleSheet(u"QLabel {\n"
+"    background-color: #FF3636;\n"
+"    border-radius: 12px;\n"
+"    color: white; /* Optional: makes the text readable on red */\n"
+"}")
+        self.horizontalLayout_5 = QHBoxLayout(self.error_mesage_lbl)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.label_2 = QLabel(self.error_mesage_lbl)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMaximumSize(QSize(350, 16777215))
+        self.label_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_5.addWidget(self.label_2)
+
+
+        self.verticalLayout_3.addWidget(self.error_mesage_lbl)
+
         self.widget_15 = QWidget(self.widget_49)
         self.widget_15.setObjectName(u"widget_15")
         self.widget_15.setMaximumSize(QSize(16777215, 80))
@@ -267,6 +288,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.label_2.setText(QCoreApplication.translate("Form", u"Vybran\u00e1 cesta obsahuje nepovolen\u00e9 znaky", None))
         self.label_9.setText(QCoreApplication.translate("Form", u"Nastaven\u00ed ulo\u017ei\u0161t\u011b:", None))
         self.save_path_dir_btn.setText("")
         self.set_saving_path_btn.setText(QCoreApplication.translate("Form", u"Nastavit", None))

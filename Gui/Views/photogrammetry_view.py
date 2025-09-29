@@ -79,7 +79,7 @@ class PhotogrammetryView(QWidget):
         self._photogrammetry_running(True)
         self._update_photogrammetry_table()
         self.quality = quality
-        self._set_quality(quality) #todo: toto zjistit zda funguje správně
+        self._set_quality(quality)
 
         if blocking:
             self._create_photogrammetry_photos()

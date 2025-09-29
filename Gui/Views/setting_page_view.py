@@ -9,6 +9,8 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QFileDialog, QLineEdit, QTableWidgetItem
 
 from Qt_files.Qt_python.ui_settings_view import Ui_Form
+from Utils.text_utils import check_path_for_special_chars
+from Utils.ui_workers import show_status_message
 
 
 class SettingsView(QWidget):
@@ -32,6 +34,7 @@ class SettingsView(QWidget):
         self.ui.xml_file_dir_btn.setIcon(QIcon("./App_data/dir_icon.png"))
         self.ui.save_path_dir_btn.setIcon(QIcon("./App_data/dir_icon.png"))
         self.ui.tableWidget.verticalHeader().setVisible(False)
+        self.ui.error_mesage_lbl.setVisible(False)
 
     def _bind_buttons(self):
         self.ui.xml_file_dir_btn.clicked.connect(lambda: self._open_file_dialog(self.ui.xml_file_dir_le))
@@ -76,13 +79,16 @@ class SettingsView(QWidget):
         name = "/vysledky_" + datetime.now().strftime("%Y-%m-%d_%H_%M")
         path = self.ui.set_saving_path_le.text() if self.ui.set_saving_path_le.text() != "" else "./"
 
-        self.ui.current_saving_path_lbl.setText(self.ui.set_saving_path_le.text() if self.ui.set_saving_path_le.text() != "" else os.getcwd())
+        if not check_path_for_special_chars(path):
+            self.ui.current_saving_path_lbl.setText(self.ui.set_saving_path_le.text() if self.ui.set_saving_path_le.text() != "" else os.getcwd())
 
-        full_path = path + name
-        os.makedirs(full_path)
+            full_path = path + name
+            os.makedirs(full_path)
 
-        self.path = full_path
-        self.SAVE_PATH.emit(full_path)
+            self.path = full_path
+            self.SAVE_PATH.emit(full_path)
+        else:
+            show_status_message(self.ui.error_mesage_lbl, 5)
 
     def _save_process_dates(self):
         test_plan_settings = [
