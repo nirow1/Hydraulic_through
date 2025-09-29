@@ -14,6 +14,8 @@ from Qt_files.Qt_python.ui_settings_view import Ui_Form
 class SettingsView(QWidget):
     GENERATE_TEST_PLAN = Signal()
     SAVE_PATH = Signal(str)
+
+
     def __init__(self, logo):
         QWidget.__init__(self)
         self.ui = Ui_Form()

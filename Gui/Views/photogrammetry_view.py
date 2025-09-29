@@ -15,7 +15,14 @@ from threading import Thread
 
 class PhotogrammetryView(QWidget):
     PHTGR_RUNNING = Signal(bool)
-    CAMS_WORKING = Signal()
+    CAMS_WORKING = Signal(bool)
+
+    # calss signals
+    aligning_photos = Signal()
+    creating_point_cloud = Signal()
+    creating_model = Signal()
+    building_texture = Signal()
+    progress_signal = Signal(object, int, int)
 
     def __init__(self, drivers):
 
@@ -29,16 +36,9 @@ class PhotogrammetryView(QWidget):
         self.current_project_id = 0
         self.result_path: str = ""
         self.cams_ready = False
-        self.doc = None#Metashape.Document()
-        self.chunk = None#self.doc.addChunk()
+        self.doc = Metashape.Document()
+        self.chunk = self.doc.addChunk()
         self.quality = None
-
-        #calss signals
-        self.aligning_photos = Signal()
-        self.creating_point_cloud = Signal()
-        self.creating_model = Signal()
-        self.building_texture = Signal()
-        self.progress_signal = Signal(object, int, int)
 
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
         self.point_cloud_setting = {"downscale": 0, "filter": 0}
@@ -58,6 +58,7 @@ class PhotogrammetryView(QWidget):
     #todo: přidat přehled o časové náročnosti
     #todo: pridat chb na mazání filů po skončení phtotogrammetrie
     #todo: poprvé se kamery nepohnou
+    #todo: přidat popisky k aktuálnímu stavu kamer a nastavit vzhled progressbaru
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(lambda: self.start_photogrammetry())
 
@@ -82,7 +83,7 @@ class PhotogrammetryView(QWidget):
 
         if blocking:
             self._create_photogrammetry_photos()
-            #Thread(target=self._create_photogrammetry_model).start()
+            Thread(target=self._create_photogrammetry_model).start()
         else:
             Thread(target=self._start_photogrammetry_process).start()
 
@@ -93,7 +94,7 @@ class PhotogrammetryView(QWidget):
 
     def _start_photogrammetry_process(self):
         self._create_photogrammetry_photos()
-        #self._create_photogrammetry_model()
+        self._create_photogrammetry_model()
 
     def _create_photogrammetry_photos(self):
         self.change_button_states(False)
@@ -123,7 +124,7 @@ class PhotogrammetryView(QWidget):
         self.export_results()
         self.doc.remove(self.chunk)
         self._photogrammetry_running(False)
-        #self.chunk = None
+        self.chunk = None
 
     def _align_photos(self, result_folder_path):
         self.aligning_photos.emit()
@@ -220,15 +221,15 @@ class PhotogrammetryView(QWidget):
             self._set_model_settings("Nízký")
         else:  # Custom from UI
             self._set_alignment_settings(
-                int(self.ui.alignment_downscale_cb.itemText()),
+                int(self.ui.alignment_downscale_cb.currentText()),
                 int(self.ui.keypoint_le.text()),
                 int(self.ui.tiepoint_le.text())
             )
             self._set_point_cloud_settings(
-                int(self.ui.cloud_downscale_cb.itemText()),
-                self.ui.filter_cb.itemText()
+                int(self.ui.cloud_downscale_cb.currentText()),
+                self.ui.filter_cb.currentText()
             )
-            self._set_model_settings(self.ui.face_count_cb.itemText())
+            self._set_model_settings(self.ui.face_count_cb.currentText())
             if self.ui.texture_chb.isChecked():
                 self._set_texture_settings()
 
@@ -255,16 +256,15 @@ class PhotogrammetryView(QWidget):
             self.mesh_face_count = Metashape.LowFaceCount
 
     def _set_texture_settings(self):
-        blending_mode = self.ui.blending_mode_cb.itemText()
+        blending_mode = self.ui.blending_mode_cb.currentText()
         if blending_mode == "Mosaic":
             self.texture_settings["blending"] = Metashape.MosaicBlending
         elif blending_mode == "Average":
             self.texture_settings["blending"] = Metashape.AverageBlending
 
-        self.texture_settings["size"] = int(self.ui.texture_size.itemText())
+        self.texture_settings["size"] = int(self.ui.texture_size.currentText())
 
     def change_button_states(self, state):
-        self.CAMS_WORKING.emit(not state)
         self.ui.start_new_phtgrm_btn.setEnabled(state)
         self.ui.continue_phtgrm_btn.setEnabled(state)
 

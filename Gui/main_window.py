@@ -169,8 +169,8 @@ class MainWindow(QMainWindow):
         self.settings_view.change_button_status(state)
 
     def _change_movement_state(self, state):
-        self.camera_view.change_movement_buttons_state(state)
-        self.photogrammetry_view.change_button_states(state)
+        self.camera_view.change_movement_buttons_state(not state)
+        self.photogrammetry_view.change_button_states(not state)
 
     def _show_photogrammetry_lbl(self, state):
         self.test_plan_view.show_photogrammetry_lbl(state)

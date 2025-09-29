@@ -48,7 +48,7 @@ class CamController(QObject):
     def grab_frame(self, count: int):
         thread = Thread(target=self._grab_frame, args=[count])
         thread.start()
-
+    #todo: error Camera 2 error: No grab result data is referenced. Cannot access NULL pointer. : RuntimeException thrown (file 'grabresultptr.cpp', line 87)
     def _grab_frame(self, count):
         try:
             self.camera.StartGrabbing(pylon.GrabStrategy_OneByOne)
@@ -71,7 +71,10 @@ class CamController(QObject):
         except pylon.RuntimeException as e:
             if "physically removed" in str(e):
                 print(f"Camera {self.cam_id} was disconnected! Reconnecting...")
-                self.reconnect()
+                self.reconnect(count)
+            elif "Cannot access NULL pointer" in str(e):
+                print(f"Camera {self.cam_id} run into error! Reconnecting...")
+                self.reconnect(count)
             else:
                 print(f"Camera {self.cam_id} error:", e)
 
@@ -91,13 +94,15 @@ class CamController(QObject):
     def set_gain(self, val: float):
         self.camera.Gain.SetValue(val)
 
-    def reconnect(self):
+    #todo: nad tímto se zamyslet
+    def reconnect(self, stoped):
         try:
             self.camera.Close()
         except:
             pass
         print(f"Reconnecting camera {self.cam_id} ...")
         self._connect_to_camera()
+        self._grab_frame(stoped)
 
     def disconnect(self):
         self.camera.Close()

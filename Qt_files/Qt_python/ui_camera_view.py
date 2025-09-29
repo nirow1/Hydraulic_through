@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'camera_viewcXQIxi.ui'
+## Form generated from reading UI file 'camera_viewdMHYHF.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.2
 ##
@@ -68,6 +68,26 @@ class Ui_Form(object):
 "}")
         self.verticalLayout = QVBoxLayout(Form)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.message_wg = QWidget(Form)
+        self.message_wg.setObjectName(u"message_wg")
+        self.message_wg.setMinimumSize(QSize(0, 25))
+        self.horizontalLayout_13 = QHBoxLayout(self.message_wg)
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.horizontalLayout_13.setContentsMargins(0, 0, 0, 0)
+        self.label_4 = QLabel(self.message_wg)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setMaximumSize(QSize(135, 16777215))
+
+        self.horizontalLayout_13.addWidget(self.label_4)
+
+        self.photo_path_lbl = QLabel(self.message_wg)
+        self.photo_path_lbl.setObjectName(u"photo_path_lbl")
+
+        self.horizontalLayout_13.addWidget(self.photo_path_lbl)
+
+
+        self.verticalLayout.addWidget(self.message_wg)
+
         self.widget_10 = QWidget(Form)
         self.widget_10.setObjectName(u"widget_10")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
@@ -388,6 +408,8 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.label_4.setText(QCoreApplication.translate("Form", u"Cesta ulo\u017een\u00ed fotky:", None))
+        self.photo_path_lbl.setText("")
         self.cam_1_pg_btn.setText(QCoreApplication.translate("Form", u"1", None))
         self.reset_camera_connection_btn.setText(QCoreApplication.translate("Form", u"obnovit kamery", None))
         self.cam_2_pg_btn.setText(QCoreApplication.translate("Form", u"2", None))

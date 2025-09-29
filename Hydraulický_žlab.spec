@@ -4,7 +4,7 @@
 a = Analysis(
     ['Hydraulický_žlab.py'],
     pathex=[],
-    binaries=[('Dlls\\snap7.dll', '.')],
+    binaries=[('.\\Dlls\\snap7.dll', '.')],
     datas=[],
     hiddenimports=[],
     hookspath=[],

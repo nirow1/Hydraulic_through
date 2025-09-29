@@ -21,6 +21,12 @@ from Utils.ui_workers import update_progressbar
 class CameraView(QWidget):
     CAMS_WORKING = Signal(bool)
 
+    # class signals
+    progress_signal = Signal(object, int, int)
+    orthophoto_done = Signal()
+    photo_path = Signal(str)
+    set_current_action_lbl = Signal(str)
+
     def __init__(self, drivers):
         QWidget.__init__(self)
         self.ui = Ui_Form()
@@ -34,11 +40,6 @@ class CameraView(QWidget):
 
         self.current_img_1= np.array([])
         self.current_img_2= np.array([])
-
-        #class signals
-        self.progress_signal = Signal(object, int, int)
-        self.orthophoto_done = Signal()
-        self.set_current_action_lbl = Signal(str)
 
         self.progress = 0
         self.path = ""
@@ -87,6 +88,7 @@ class CameraView(QWidget):
         self.progress_signal.connect(update_progressbar)
         self.orthophoto_done.connect(self.orthophoto_ended)
         self.set_current_action_lbl.connect(self._change_action_lbl)
+        self.photo_path.connect(self._set_path_lbl)
 
     #todo: odpojit kamery při photogrammetrii
     def _connect_to_cameras(self):
@@ -121,11 +123,11 @@ class CameraView(QWidget):
         self.connecting_cameras = False
 
     def _reconnect_to_cameras(self):
-        self.cam.reconnect()
-        self.cam_2.reconnect()
+        self.cam.reconnect(1)
+        self.cam_2.reconnect(1)
 
     def make_orthophoto_image(self,quality = None, blocking=False):
-        self.change_movement_buttons_state(False)
+        self.CAMS_WORKING.emit(True)
         self.set_current_action_lbl.emit("Pohyb kamer na pozici")
         self.op_quality = quality if quality is not None else self.quality_dic[self.ui.orthophoto_quality_cb.currentText()]
 
@@ -169,6 +171,7 @@ class CameraView(QWidget):
 
         name = f"{file}{str(cam_id)}_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         path = f"{self.path}/{name}.png"
+        self.photo_path.emit(path)
         cv2.imwrite(path, current_image)
 
     def save_video(self, cam_id: int, blocking=False):
@@ -216,7 +219,7 @@ class CameraView(QWidget):
         self.path = path
 
     def orthophoto_ended(self):
-        self.change_movement_buttons_state(True)
+        self.CAMS_WORKING.emit(False)
         self.set_current_action_lbl.emit("Hotovo")
         self.drivers.move_to_beginning()
 
@@ -264,8 +267,10 @@ class CameraView(QWidget):
     def stop_moving(self):
         self.drivers.stop_jog()
 
+    def _set_path_lbl(self, path):
+        self.ui.photo_path_lbl.setText(path)
+
     def change_movement_buttons_state(self, state):
-        self.CAMS_WORKING.emit(not state)
         self.ui.start_ortophoto_btn.setEnabled(state)
         self.ui.up_btn.setEnabled(state)
         self.ui.down_btn.setEnabled(state)
