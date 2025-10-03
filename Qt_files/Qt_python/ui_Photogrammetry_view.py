@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Photogrammetry_viewCefObJ.ui'
+## Form generated from reading UI file 'Photogrammetry_viewFVWeIm.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.2
 ##
@@ -525,11 +525,11 @@ class Ui_Form(object):
         self.horizontalLayout_10 = QHBoxLayout(self.widget_30)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
-        self.Stop_photogrammetry_btn = QPushButton(self.widget_30)
-        self.Stop_photogrammetry_btn.setObjectName(u"Stop_photogrammetry_btn")
-        self.Stop_photogrammetry_btn.setMaximumSize(QSize(200, 40))
+        self.stop_photogrammetry_btn = QPushButton(self.widget_30)
+        self.stop_photogrammetry_btn.setObjectName(u"stop_photogrammetry_btn")
+        self.stop_photogrammetry_btn.setMaximumSize(QSize(200, 40))
 
-        self.horizontalLayout_10.addWidget(self.Stop_photogrammetry_btn)
+        self.horizontalLayout_10.addWidget(self.stop_photogrammetry_btn)
 
 
         self.horizontalLayout_7.addWidget(self.widget_30)
@@ -674,7 +674,7 @@ class Ui_Form(object):
         self.texture_size.setItemText(2, QCoreApplication.translate("Form", u"2048", None))
         self.texture_size.setItemText(3, QCoreApplication.translate("Form", u"1024", None))
 
-        self.Stop_photogrammetry_btn.setText(QCoreApplication.translate("Form", u"Zastavit Photogrammetrii", None))
+        self.stop_photogrammetry_btn.setText(QCoreApplication.translate("Form", u"Zastavit Photogrammetrii", None))
         self.start_new_phtgrm_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt photogrammetrii", None))
         self.continue_phtgrm_btn.setText(QCoreApplication.translate("Form", u"pokra\u010dovat", None))
         self.label.setText(QCoreApplication.translate("Form", u"Pr\u016fb\u011bh fotogrammetrie:", None))

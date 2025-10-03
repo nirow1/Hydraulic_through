@@ -998,7 +998,7 @@ QPushButton:pressed {
                 <number>0</number>
                </property>
                <item>
-                <widget class="QPushButton" name="Stop_photogrammetry_btn">
+                <widget class="QPushButton" name="stop_photogrammetry_btn">
                  <property name="maximumSize">
                   <size>
                    <width>200</width>

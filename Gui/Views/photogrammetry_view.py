@@ -19,10 +19,7 @@ class PhotogrammetryView(QWidget):
     CAMS_WORKING = Signal(bool)
 
     # calss signals
-    aligning_photos = Signal()
-    creating_point_cloud = Signal()
-    creating_model = Signal()
-    building_texture = Signal()
+    change_current_process_lbl = Signal(str)
     progress_signal = Signal(object, int, int)
 
     def __init__(self, drivers):
@@ -40,8 +37,7 @@ class PhotogrammetryView(QWidget):
         self.doc = Metashape.Document()
         self.chunk = self.doc.addChunk()
         self.quality = None
-        # todo: možnost vypnout photogrammetrii
-        self.running = True
+        self.continue_photogrammetry = True
 
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
         self.point_cloud_setting = {"downscale": 0, "filter": Metashape.MildFiltering}
@@ -55,24 +51,21 @@ class PhotogrammetryView(QWidget):
 
     def _initial_graphical_changes(self):
         self.ui.tableWidget.verticalHeader().setVisible(False)
-        self.ui.widget_28.setVisible(False)
         self.ui.photogrammetry_running_lbl.setVisible(False)
         self.ui.tiepoint_le.setValidator(NumberValidator(20000))
         self.ui.keypoint_le.setValidator(NumberValidator(80000))
 
     #todo: přidat přehled o časové náročnosti
     #todo: poprvé se kamery nepohnou
-    #todo: přidat popisky k aktuálnímu stavu kameru progressbaru a nastavit vzhled progressbaru
-    #todo: dodělat funkci pokračování photogrammetrii a taky stop, bude třeba si i nějak zapamatovat nastavení, nebo aspoň možnost jí nastavovat
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(lambda: self.start_photogrammetry())
+        self.ui.stop_photogrammetry_btn.clicked.connect(self._stop_photogrammetry)
+        #todo: dodělat funkci pokračování photogrammetrii a taky stop, bude třeba si i nějak zapamatovat nastavení, nebo aspoň možnost jí nastavovat
+        self.ui.continue_phtgrm_btn.clicked.connect(self._resume_processing_photogrammetry)
 
     def _bind_emits(self):
         self.cameras.CAMS_READY.connect(lambda: self._change_cams_state(True))
-        self.aligning_photos.connect(lambda: self.ui.progress_lbl.setText("Aligning photos"))
-        self.creating_point_cloud.connect(lambda: self.ui.progress_lbl.setText("Creating point could"))
-        self.creating_model.connect(lambda: self.ui.progress_lbl.setText("Creating model"))
-        self.building_texture.connect(lambda: self.ui.progress_lbl.setText("Building texture"))
+        self.change_current_process_lbl.connect(self._set_current_process_lbl)
         self.progress_signal.connect(update_progressbar)
 
     def _change_cams_state(self, state: bool):
@@ -104,10 +97,10 @@ class PhotogrammetryView(QWidget):
         self.change_button_states(False)
         self.drivers.move_to_beginning()
         self.CAMS_WORKING.emit(True)
+        self.change_current_process_lbl.emit("Získávání fotek...")
         self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos")
         time.sleep(12)
         for i in range(80):
-            print(f"foto:{i}")
             self._change_cams_state(False)
             self.cameras.acquire_frames(i)
             while not self.cams_ready:
@@ -131,7 +124,7 @@ class PhotogrammetryView(QWidget):
         self.chunk = None
 
     def _align_photos(self, result_folder_path):
-        self.aligning_photos.emit()
+        self.change_current_process_lbl.emit("Zarovnávání fotek...")
         photo_folder_path = result_folder_path+"/photos"
         photos = [os.path.join(photo_folder_path, p) for p in os.listdir(photo_folder_path) if p.endswith(".png")]
         self.chunk.addPhotos(photos)
@@ -144,14 +137,14 @@ class PhotogrammetryView(QWidget):
         self.doc.save(os.path.join(result_folder_path, "project_after_alignment.psx"))
 
     def _create_point_cloud(self, result_file_path):
-        self.creating_point_cloud.emit()
+        self.change_current_process_lbl.emit("Tvorba point cloudu...")
         self.chunk.buildDepthMaps(downscale=self.point_cloud_setting["downscale"],
                                   filter_mode=self.point_cloud_setting["filter"])
         self.chunk.buildPointCloud(progress=self.progress_callback)
         self.doc.save(os.path.join(result_file_path, "project_after_pointcloud.psx"))
 
     def _create_model(self, result_folder_path):
-        self.creating_model.emit()
+        self.change_current_process_lbl.emit("Tvorba modelu...")
         self.chunk.buildModel(surface_type=Metashape.Arbitrary,
                               interpolation=Metashape.EnabledInterpolation,
                               face_count=self.mesh_face_count,
@@ -159,7 +152,7 @@ class PhotogrammetryView(QWidget):
         self.doc.save(os.path.join(result_folder_path, "project_after_model.psx"))
 
     def build_texture(self, result_folder_path):
-        self.building_texture.emit()
+        self.change_current_process_lbl.emit("Tvorba textury...")
         self.chunk.buildUV(mapping_mode=Metashape.GenericMapping)
         self.chunk.buildTexture(blending_mode=self.texture_settings["blending"],
                                 texture_size=self.texture_settings["size"],
@@ -180,9 +173,11 @@ class PhotogrammetryView(QWidget):
         percent = int(info * 100)
         self.progress_signal.emit(self.ui.progressBar, percent, 100)
 
-        if not self.running:
+        if not self.continue_photogrammetry:
             print("Cancelling Metashape process...")
+            self.continue_photogrammetry = True
             return False
+
         return True
 
     def _create_photogrammetry_record(self):
@@ -279,6 +274,8 @@ class PhotogrammetryView(QWidget):
         if self.ui.delete_files_chb.isChecked():
             return
 
+    def _resume_processing_photogrammetry(self):
+        pass
 
     def change_button_states(self, state):
         self.ui.start_new_phtgrm_btn.setEnabled(state)
@@ -291,9 +288,15 @@ class PhotogrammetryView(QWidget):
     def set_path(self, path):
         self.result_path = os.path.join(path, "fotogrammetrie")
 
+    def _stop_photogrammetry(self):
+        self.continue_photogrammetry = False
+
     def _photogrammetry_running(self, state):
         self.PHTGR_RUNNING.emit(False)
         self.ui.photogrammetry_running_lbl.setVisible(False)
+
+    def _set_current_process_lbl(self, label):
+        self.ui.progress_lbl.setText(label)
 
     def disconnect(self):
         self.cameras.stop_recording()
