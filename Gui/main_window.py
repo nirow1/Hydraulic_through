@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         self.ui.photo_pg_btn.clicked.connect(lambda: self.ui.stackedWidget.setCurrentWidget(self.photogrammetry_view))
         self.ui.cam_page_btn.clicked.connect(lambda: self.ui.stackedWidget.setCurrentWidget(self.camera_view))
 
-        self.ui.stop_btn.clicked.connect(self._stop_through)
+        self.ui.stop_btn.clicked.connect(self._stop_plans)
 
     def _bind_emits(self):
         self.update_tabs.connect(self._generate_test_plan)
@@ -94,6 +94,7 @@ class MainWindow(QMainWindow):
 
     def _start_plans(self):
         self._change_button_state(False)
+        self.stop = False
         Thread(target=self._iterate_flow_plans, daemon=True).start()
         Thread(target=self._iterate_cam_plans).start()
 
@@ -101,29 +102,29 @@ class MainWindow(QMainWindow):
         path = "./App_data/Test_plan/cam_plans.csv"
         flow_plans = extract_data_from_csv(path)
         for i, row in enumerate(flow_plans):
-            if not self.stop:
-                target_time = datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S")
-                if row[3] == "0":
-                    self._wait_until(target_time)
-                    print(f"setting drivers to: {row[1]}")
-                    self.drivers.set_position(int(row[1]))
-                    time.sleep(12)
-                    if row[2] == "foto 1":
-                        self.camera_view.save_photo(1)
-                        time.sleep(1)
-                    if row[2] == "foto 2":
-                        self.camera_view.save_photo(2)
-                        time.sleep(1)
-                    if row[2] == "video 1":
-                        self.camera_view.save_video(1, blocking=True)
-                    if row[2] == "video 2":
-                        self.camera_view.save_video(2, blocking=True)
-                    if row[2] == "orthophoto":
-                        self.camera_view.make_orthophoto_image(quality=row[1],blocking=True)
-                    if row[2] == "photogrm":
-                        self.photogrammetry_view.start_photogrammetry(quality=row[1], blocking=True)
-                    change_csv_status(path, i, 3)
-                    self.update_tabs.emit()
+            target_time = datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S")
+            if row[3] == "0":
+                self._wait_until(target_time)
+                if self.stop:
+                    break
+                self.drivers.set_position(int(row[1]))
+                time.sleep(12)
+                if row[2] == "foto 1":
+                    self.camera_view.save_photo(1)
+                    time.sleep(1)
+                elif row[2] == "foto 2":
+                    self.camera_view.save_photo(2)
+                    time.sleep(1)
+                elif row[2] == "video 1":
+                    self.camera_view.save_video(1, blocking=True)
+                elif row[2] == "video 2":
+                    self.camera_view.save_video(2, blocking=True)
+                elif row[2] == "orthophoto":
+                    self.camera_view.make_orthophoto_image(quality=row[1],blocking=True)
+                elif row[2] == "photogrm":
+                    self.photogrammetry_view.start_photogrammetry(quality=row[1], blocking=True)
+                change_csv_status(path, i, 3)
+                self.update_tabs.emit()
 
     def _iterate_flow_plans(self):
         path = "./App_data/Test_plan/planned_flow.csv"
@@ -131,15 +132,16 @@ class MainWindow(QMainWindow):
         self.test_plan_view.start_saving()
 
         for i, row in enumerate(flow_plans):
-            if not self.stop:
-                target_time = datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S")
-                flow_value = float(row[1])
-                self.change_next_flow.emit([i / (len(flow_plans)) * 100, row[0], row[1]])
-                if row[2] == "0":
-                    self._wait_until(target_time)
-                    self._change_flow(flow_value)
-                    change_csv_status(path, i, 2)
-                    self.update_tabs.emit()
+            target_time = datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S")
+            flow_value = float(row[1])
+            self.change_next_flow.emit([i / (len(flow_plans)) * 100, row[0], row[1]])
+            if row[2] == "0":
+                self._wait_until(target_time)
+                if self.stop:
+                    break
+                self._change_flow(flow_value)
+                change_csv_status(path, i, 2)
+                self.update_tabs.emit()
 
         self.test_plan_view.stop_saving()
         self.test_plan_view.show_testplan_lbl(False)
@@ -175,7 +177,7 @@ class MainWindow(QMainWindow):
     def _show_photogrammetry_lbl(self, state):
         self.test_plan_view.show_photogrammetry_lbl(state)
 
-    def _stop_through(self):
+    def _stop_plans(self):
         self.logo.write_logo_ushort(1, 0)
         self.stop = True
 

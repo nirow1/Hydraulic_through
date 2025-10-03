@@ -862,7 +862,7 @@ background-color: #ccc;
                      </size>
                     </property>
                     <property name="text">
-                     <string>Texture size (0 - 4096):</string>
+                     <string>Texture size:</string>
                     </property>
                    </widget>
                   </item>
@@ -882,6 +882,11 @@ background-color: #ccc;
                     <item>
                      <property name="text">
                       <string>4096</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>2048</string>
                      </property>
                     </item>
                     <item>

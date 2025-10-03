@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Photogrammetry_viewhVqUfO.ui'
+## Form generated from reading UI file 'Photogrammetry_viewCefObJ.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -469,6 +469,7 @@ class Ui_Form(object):
         self.texture_size.addItem("")
         self.texture_size.addItem("")
         self.texture_size.addItem("")
+        self.texture_size.addItem("")
         self.texture_size.setObjectName(u"texture_size")
         self.texture_size.setMaximumSize(QSize(16777215, 30))
 
@@ -667,10 +668,11 @@ class Ui_Form(object):
         self.blending_mode_cb.setItemText(0, QCoreApplication.translate("Form", u"Mosaic", None))
         self.blending_mode_cb.setItemText(1, QCoreApplication.translate("Form", u"Average", None))
 
-        self.label_17.setText(QCoreApplication.translate("Form", u"Texture size (0 - 4096):", None))
+        self.label_17.setText(QCoreApplication.translate("Form", u"Texture size:", None))
         self.texture_size.setItemText(0, QCoreApplication.translate("Form", u"8192", None))
         self.texture_size.setItemText(1, QCoreApplication.translate("Form", u"4096", None))
-        self.texture_size.setItemText(2, QCoreApplication.translate("Form", u"1024", None))
+        self.texture_size.setItemText(2, QCoreApplication.translate("Form", u"2048", None))
+        self.texture_size.setItemText(3, QCoreApplication.translate("Form", u"1024", None))
 
         self.Stop_photogrammetry_btn.setText(QCoreApplication.translate("Form", u"Zastavit Photogrammetrii", None))
         self.start_new_phtgrm_btn.setText(QCoreApplication.translate("Form", u"Za\u010d\u00edt photogrammetrii", None))

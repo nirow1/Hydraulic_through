@@ -4,6 +4,7 @@ import csv
 import os
 
 from Controllers.phtgr_cam_controller import PhtgrCamController
+from Utils.number_validator import NumberValidator
 from Utils.ui_workers import populate_table, update_progressbar
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
 from Controllers.driver_controller import DriverController
@@ -39,11 +40,13 @@ class PhotogrammetryView(QWidget):
         self.doc = Metashape.Document()
         self.chunk = self.doc.addChunk()
         self.quality = None
+        # todo: možnost vypnout photogrammetrii
+        self.running = True
 
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
-        self.point_cloud_setting = {"downscale": 0, "filter": 0}
-        self.texture_settings = {"blending": 0, "size": 0}
-        self.mesh_face_count = 0
+        self.point_cloud_setting = {"downscale": 0, "filter": Metashape.MildFiltering}
+        self.texture_settings = {"blending": Metashape.AverageBlending, "size": 0}
+        self.mesh_face_count = Metashape.LowFaceCount
 
         self._update_photogrammetry_table()
         self._initial_graphical_changes()
@@ -54,11 +57,13 @@ class PhotogrammetryView(QWidget):
         self.ui.tableWidget.verticalHeader().setVisible(False)
         self.ui.widget_28.setVisible(False)
         self.ui.photogrammetry_running_lbl.setVisible(False)
+        self.ui.tiepoint_le.setValidator(NumberValidator(20000))
+        self.ui.keypoint_le.setValidator(NumberValidator(80000))
 
     #todo: přidat přehled o časové náročnosti
-    #todo: pridat chb na mazání filů po skončení phtotogrammetrie
     #todo: poprvé se kamery nepohnou
-    #todo: přidat popisky k aktuálnímu stavu kamer a nastavit vzhled progressbaru
+    #todo: přidat popisky k aktuálnímu stavu kameru progressbaru a nastavit vzhled progressbaru
+    #todo: dodělat funkci pokračování photogrammetrii a taky stop, bude třeba si i nějak zapamatovat nastavení, nebo aspoň možnost jí nastavovat
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(lambda: self.start_photogrammetry())
 
@@ -73,7 +78,6 @@ class PhotogrammetryView(QWidget):
     def _change_cams_state(self, state: bool):
         self.cams_ready = state
 
-    #todo: možnost vypnout photogrammetrii
     def start_photogrammetry(self,quality=None, blocking=False):
         self._create_directory()
         self._photogrammetry_running(True)
@@ -141,7 +145,8 @@ class PhotogrammetryView(QWidget):
 
     def _create_point_cloud(self, result_file_path):
         self.creating_point_cloud.emit()
-        self.chunk.buildDepthMaps(downscale=2, filter_mode=Metashape.MildFiltering)
+        self.chunk.buildDepthMaps(downscale=self.point_cloud_setting["downscale"],
+                                  filter_mode=self.point_cloud_setting["filter"])
         self.chunk.buildPointCloud(progress=self.progress_callback)
         self.doc.save(os.path.join(result_file_path, "project_after_pointcloud.psx"))
 
@@ -149,15 +154,15 @@ class PhotogrammetryView(QWidget):
         self.creating_model.emit()
         self.chunk.buildModel(surface_type=Metashape.Arbitrary,
                               interpolation=Metashape.EnabledInterpolation,
-                              face_count=Metashape.MediumFaceCount,
+                              face_count=self.mesh_face_count,
                               progress=self.progress_callback)
         self.doc.save(os.path.join(result_folder_path, "project_after_model.psx"))
 
     def build_texture(self, result_folder_path):
         self.building_texture.emit()
         self.chunk.buildUV(mapping_mode=Metashape.GenericMapping)
-        self.chunk.buildTexture(blending_mode=Metashape.MosaicBlending,
-                                texture_size=4096,
+        self.chunk.buildTexture(blending_mode=self.texture_settings["blending"],
+                                texture_size=self.texture_settings["size"],
                                 progress=self.progress_callback)
         self.doc.save(os.path.join(result_folder_path, "project_after_texture.psx"))
 
@@ -172,7 +177,13 @@ class PhotogrammetryView(QWidget):
         )
 
     def progress_callback(self, info):
-        self.progress_signal.emit(self.ui.progressBar, info, 80000)
+        percent = int(info * 100)
+        self.progress_signal.emit(self.ui.progressBar, percent, 100)
+
+        if not self.running:
+            print("Cancelling Metashape process...")
+            return False
+        return True
 
     def _create_photogrammetry_record(self):
         file_path = "./App_data/Test_plan/planned_photogrammetry.csv"
@@ -263,6 +274,11 @@ class PhotogrammetryView(QWidget):
             self.texture_settings["blending"] = Metashape.AverageBlending
 
         self.texture_settings["size"] = int(self.ui.texture_size.currentText())
+
+    def _delete_photogrammetry_record(self):
+        if self.ui.delete_files_chb.isChecked():
+            return
+
 
     def change_button_states(self, state):
         self.ui.start_new_phtgrm_btn.setEnabled(state)
