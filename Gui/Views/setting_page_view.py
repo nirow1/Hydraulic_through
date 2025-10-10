@@ -69,7 +69,6 @@ class SettingsView(QWidget):
                 self.ui.tableWidget.setItem(i, j, QTableWidgetItem(str(cell)))
 
         workbook.close()
-        self._resize_table_widget()
 
     def generate_test_plan(self):
         self._save_process_dates()

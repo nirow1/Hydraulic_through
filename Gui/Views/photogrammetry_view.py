@@ -1,12 +1,11 @@
 import os
 import csv
 import time
-from datetime import datetime
-
 import Metashape
 
-from threading import Thread
+from datetime import datetime
 from PySide6.QtCore import Signal
+from threading import Thread, Lock
 from PySide6.QtWidgets import QWidget
 from Utils.csv_work import extract_data_from_csv
 from Utils.number_validator import NumberValidator
@@ -14,6 +13,7 @@ from Controllers.driver_controller import DriverController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
 from Controllers.phtgr_cam_controller import PhtgrCamController
 from Utils.ui_workers import populate_table, update_progressbar
+from Utils.photogrammetry_helpers import find_latest_row, find_current_photogrammetry_row
 
 
 class PhotogrammetryView(QWidget):
@@ -33,13 +33,17 @@ class PhotogrammetryView(QWidget):
         self.cameras: PhtgrCamController = PhtgrCamController()
 
         # variables
-        self.current_project_id = 0
+        self.current_project_id: str = ""
         self.result_path: str = ""
         self.cams_ready = False
         self.doc = Metashape.Document()
         self.chunk = self.doc.addChunk()
+        self.photo_dir_id = 0
+
         self.quality = None
         self.continue_photogrammetry = True
+        self._photogrammetry_lock = Lock()
+        self.photogrammetry_running = False
 
         self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
         self.point_cloud_setting = {"downscale": 0, "filter": Metashape.MildFiltering}
@@ -73,11 +77,8 @@ class PhotogrammetryView(QWidget):
         self.cams_ready = state
 
     def start_photogrammetry(self,quality=None, blocking=False):
-        self._create_directory()
-        self._photogrammetry_running(True)
-        self._update_photogrammetry_table()
-        self.quality = quality
-        self._set_quality(quality)
+        last_id = self._create_directory()
+        self._setup_photogrammetry(quality, last_id)
 
         if blocking:
             self._create_photogrammetry_photos()
@@ -86,11 +87,13 @@ class PhotogrammetryView(QWidget):
             Thread(target=self._start_photogrammetry_process).start()
 
     def _create_directory(self):
-        self._create_photogrammetry_record()
-        path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos"
+        last_id = self._create_photogrammetry_record()
+        path = f"./App_data/Photogrammetry/Photogrammetry_{self.photo_dir_id}/Photos"
         os.makedirs(path, exist_ok=True)
+        self._update_photogrammetry_table()
+        return last_id
 
-    def _start_photogrammetry_process(self):
+    def _start_photogrammetry_process(self, ):
         self._create_photogrammetry_photos()
         self._create_photogrammetry_model()
 
@@ -99,7 +102,7 @@ class PhotogrammetryView(QWidget):
         self.drivers.move_to_beginning()
         self.CAMS_WORKING.emit(True)
         self.change_current_process_lbl.emit("Získávání fotek...")
-        self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}/Photos")
+        self.cameras.set_path(f"./App_data/Photogrammetry/Photogrammetry_{self.photo_dir_id}/Photos")
         time.sleep(12)
         for i in range(80):
             self._change_cams_state(False)
@@ -112,17 +115,33 @@ class PhotogrammetryView(QWidget):
         self.CAMS_WORKING.emit(False)
         self.change_button_states(True)
 
-    #todo: tady je třeba přidat ověření jaké kroky již proběhly
     def _create_photogrammetry_model(self):
+        if not self._photogrammetry_lock.acquire(blocking=False):
+            return
+
+        self.photogrammetry_running = True
+        current_project = find_current_photogrammetry_row(self.current_project_id)
         result_folder_path = f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}"
-        self._align_photos(result_folder_path)
-        self._create_point_cloud(result_folder_path)
-        self._create_model(result_folder_path)
-        if self.quality is None and self.ui.texture_chb.isChecked():
-            self.build_texture(result_folder_path)
+
+        steps = [
+            (not current_project[1], lambda: self._align_photos(result_folder_path)),
+            (not current_project[2], lambda: self._create_point_cloud(result_folder_path)),
+            (not current_project[3], lambda: self._create_model(result_folder_path)),
+            (
+                self.quality is None and self.ui.texture_chb.isChecked() and not current_project[4],
+                lambda: self.build_texture(result_folder_path),
+            ),
+        ]
+
+        for condition, action in steps:
+            if condition:
+                action()
+
         self.export_results()
         self.doc.remove(self.chunk)
         self._photogrammetry_running(False)
+        self.photogrammetry_running = False
+        self._photogrammetry_lock.release()
         self.chunk = None
 
     def _align_photos(self, result_folder_path):
@@ -213,8 +232,8 @@ class PhotogrammetryView(QWidget):
             writer = csv.writer(f)
             writer.writerows(records)
             f.truncate()  # Ensure old data is removed
-
-            self.current_project_id = last_id
+            self.photo_dir_id = last_id
+            return last_id#todo: zkontrolovat a toto asi není třeba
 
     def _set_quality(self):
         if self.quality == 1:  # High
@@ -284,9 +303,10 @@ class PhotogrammetryView(QWidget):
 
     def _resume_processing_photogrammetry(self):
         photogrammetry_database = extract_data_from_csv("./App_data/Test_plan/planned_photogrammetry.csv")
-        last_photogrammetry = self._find_latest_row(photogrammetry_database)
+        last_photogrammetry = find_latest_row(photogrammetry_database)
+        if not self.photogrammetry_running:
 
-        self.quality = photogrammetry_database[last_photogrammetry][5]
+            self._setup_photogrammetry(photogrammetry_database[last_photogrammetry][5],last_photogrammetry[0])
 
     def change_button_states(self, state):
         self.ui.start_new_phtgrm_btn.setEnabled(state)
@@ -309,23 +329,12 @@ class PhotogrammetryView(QWidget):
     def _set_current_process_lbl(self, label):
         self.ui.progress_lbl.setText(label)
 
-    @staticmethod
-    def _find_latest_row(data):
-        latest_time = datetime.min
-        latest_row = None
-
-        for record in data:
-            if not record or not record[-1]:  # skip empty rows or missing timestamps
-                continue
-            try:
-                row_time = datetime.fromisoformat(record[-1])
-                if row_time > latest_time:
-                    latest_time = row_time
-                    latest_row = record
-            except ValueError:
-                # skip malformed timestamp strings
-                continue
-        return latest_row
+    def _setup_photogrammetry(self, quality, cur_id):
+        self._photogrammetry_running(True)
+        if not self.photogrammetry_running:
+            self.current_project_id = cur_id
+            self.quality = quality
+            self._set_quality()
 
     def disconnect(self):
         self.cameras.stop_recording()
