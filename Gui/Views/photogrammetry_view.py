@@ -1,5 +1,6 @@
 import os
 import csv
+import shutil
 import time
 import Metashape
 
@@ -7,7 +8,7 @@ from datetime import datetime
 from PySide6.QtCore import Signal
 from threading import Thread, Lock
 from PySide6.QtWidgets import QWidget
-from Utils.csv_work import extract_data_from_csv
+from Utils.csv_work import extract_data_from_csv, delete_csv_row_by_id
 from Utils.number_validator import NumberValidator
 from Controllers.driver_controller import DriverController
 from Qt_files.Qt_python.ui_Photogrammetry_view import Ui_Form
@@ -77,8 +78,8 @@ class PhotogrammetryView(QWidget):
         self.cams_ready = state
 
     def start_photogrammetry(self,quality=None, blocking=False):
-        last_id = self._create_directory()
-        self._setup_photogrammetry(quality, last_id)
+        self._create_directory()
+        self._setup_photogrammetry(quality, self.photo_dir_id)
 
         if blocking:
             self._create_photogrammetry_photos()
@@ -87,11 +88,10 @@ class PhotogrammetryView(QWidget):
             Thread(target=self._start_photogrammetry_process).start()
 
     def _create_directory(self):
-        last_id = self._create_photogrammetry_record()
+        self._create_photogrammetry_record()
         path = f"./App_data/Photogrammetry/Photogrammetry_{self.photo_dir_id}/Photos"
         os.makedirs(path, exist_ok=True)
         self._update_photogrammetry_table()
-        return last_id
 
     def _start_photogrammetry_process(self, ):
         self._create_photogrammetry_photos()
@@ -138,10 +138,11 @@ class PhotogrammetryView(QWidget):
                 action()
 
         self.export_results()
-        self.doc.remove(self.chunk)
+        self.doc.remove([self.chunk])
         self._photogrammetry_running(False)
         self.photogrammetry_running = False
         self._photogrammetry_lock.release()
+        self._delete_photogrammetry_record()
         self.chunk = None
 
     def _align_photos(self, result_folder_path):
@@ -233,7 +234,6 @@ class PhotogrammetryView(QWidget):
             writer.writerows(records)
             f.truncate()  # Ensure old data is removed
             self.photo_dir_id = last_id
-            return last_id#todo: zkontrolovat a toto asi není třeba
 
     def _set_quality(self):
         if self.quality == 1:  # High
@@ -293,10 +293,10 @@ class PhotogrammetryView(QWidget):
 
         self.texture_settings["size"] = int(self.ui.texture_size.currentText())
 
-    #todo: mazání všech filů + smazat záznam z databáze
     def _delete_photogrammetry_record(self):
+        delete_csv_row_by_id("./App_data/Test_plan/planned_photogrammetry.csv" , int(self.current_project_id))
         if self.ui.delete_files_chb.isChecked():
-            return
+            shutil.rmtree(f"./App_data/Photogrammetry/Photogrammetry_{self.current_project_id}")
 
     def _start_resume_thread(self):
         Thread(target=self._resume_processing_photogrammetry).start()
@@ -305,8 +305,9 @@ class PhotogrammetryView(QWidget):
         photogrammetry_database = extract_data_from_csv("./App_data/Test_plan/planned_photogrammetry.csv")
         last_photogrammetry = find_latest_row(photogrammetry_database)
         if not self.photogrammetry_running:
+            self._setup_photogrammetry(photogrammetry_database[last_photogrammetry][5], last_photogrammetry[0])
+            self._create_photogrammetry_model()
 
-            self._setup_photogrammetry(photogrammetry_database[last_photogrammetry][5],last_photogrammetry[0])
 
     def change_button_states(self, state):
         self.ui.start_new_phtgrm_btn.setEnabled(state)
@@ -329,10 +330,10 @@ class PhotogrammetryView(QWidget):
     def _set_current_process_lbl(self, label):
         self.ui.progress_lbl.setText(label)
 
-    def _setup_photogrammetry(self, quality, cur_id):
+    def _setup_photogrammetry(self, quality, project_id):
         self._photogrammetry_running(True)
         if not self.photogrammetry_running:
-            self.current_project_id = cur_id
+            self.current_project_id = project_id
             self.quality = quality
             self._set_quality()
 
