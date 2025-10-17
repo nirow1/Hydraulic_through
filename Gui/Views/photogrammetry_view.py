@@ -46,9 +46,9 @@ class PhotogrammetryView(QWidget):
         self._photogrammetry_lock = Lock()
         self.photogrammetry_running = False
 
-        self.photo_align_settings = {"downscale": 0, "keypoint": 0, "tiepoint": 0}
-        self.point_cloud_setting = {"downscale": 0, "filter": Metashape.MildFiltering}
-        self.texture_settings = {"blending": Metashape.AverageBlending, "size": 0}
+        self.photo_align_settings = {"downscale": 2, "keypoint": 40000, "tiepoint": 10000}
+        self.point_cloud_setting = {"downscale": 2, "filter": Metashape.MildFiltering}
+        self.texture_settings = {"blending": Metashape.AverageBlending, "size": 2048}
         self.mesh_face_count = Metashape.LowFaceCount
 
         self._update_photogrammetry_table()
@@ -63,7 +63,7 @@ class PhotogrammetryView(QWidget):
         self.ui.keypoint_le.setValidator(NumberValidator(80000))
 
     #todo: přidat přehled o časové náročnosti
-    #todo: poprvé se kamery nepohnou
+    #todo: poprvé se kamery
     def _bind_buttons(self):
         self.ui.start_new_phtgrm_btn.clicked.connect(lambda: self.start_photogrammetry())
         self.ui.stop_photogrammetry_btn.clicked.connect(self._stop_photogrammetry)
@@ -333,7 +333,8 @@ class PhotogrammetryView(QWidget):
     def _setup_photogrammetry(self, quality, project_id):
         self._photogrammetry_running(True)
         if not self.photogrammetry_running:
-            self.current_project_id = project_id
+            self.current_project_id : str = project_id
+            self.ui.current_project_lbl.setText(project_id)
             self.quality = quality
             self._set_quality()
 

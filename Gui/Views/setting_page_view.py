@@ -89,6 +89,8 @@ class SettingsView(QWidget):
         else:
             show_status_message(self.ui.error_mesage_lbl, 5)
 
+
+    #todo: přidat do tabulky sloupec s poznámkou která se propíše do ulpženého souboru s celm plánem
     def _save_process_dates(self):
         test_plan_settings = [
             [
@@ -128,10 +130,11 @@ class SettingsView(QWidget):
                         writer.writerow([self.create_datetime(row), value, label, 0])
 
     def _resize_table_widget(self):
-        for i in range(4):
+        for i in range(5):
             self.ui.tableWidget.setColumnWidth(i, 94)
-        for i in range(4, 7):
-            self.ui.tableWidget.setColumnWidth(i, 125)
+        self.ui.tableWidget.setColumnWidth(5, 125)
+        for i in range(6, 8):
+            self.ui.tableWidget.setColumnWidth(i, 80)
 
     def _add_row(self):
         row_position = self.ui.tableWidget.rowCount()

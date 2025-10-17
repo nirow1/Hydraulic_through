@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'settings_viewXevxuS.ui'
+## Form generated from reading UI file 'settings_viewfgFNkm.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.2
 ##
@@ -203,8 +203,8 @@ class Ui_Form(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(1, 1, 1, 1)
         self.tableWidget = QTableWidget(self.widget)
-        if (self.tableWidget.columnCount() < 11):
-            self.tableWidget.setColumnCount(11)
+        if (self.tableWidget.columnCount() < 12):
+            self.tableWidget.setColumnCount(12)
         __qtablewidgetitem = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -227,6 +227,8 @@ class Ui_Form(object):
         self.tableWidget.setHorizontalHeaderItem(9, __qtablewidgetitem9)
         __qtablewidgetitem10 = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(10, __qtablewidgetitem10)
+        __qtablewidgetitem11 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(11, __qtablewidgetitem11)
         self.tableWidget.setObjectName(u"tableWidget")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -318,6 +320,8 @@ class Ui_Form(object):
         ___qtablewidgetitem9.setText(QCoreApplication.translate("Form", u"Video 1", None));
         ___qtablewidgetitem10 = self.tableWidget.horizontalHeaderItem(10)
         ___qtablewidgetitem10.setText(QCoreApplication.translate("Form", u"Video 2", None));
+        ___qtablewidgetitem11 = self.tableWidget.horizontalHeaderItem(11)
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("Form", u"Pozn\u00e1mka", None));
         self.add_row_btn.setText(QCoreApplication.translate("Form", u"+", None))
         self.delete_row_btn.setText(QCoreApplication.translate("Form", u"-", None))
         self.generate_test_plan_btn.setText(QCoreApplication.translate("Form", u"Vygeneruj test pl\u00e1n", None))

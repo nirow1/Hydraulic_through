@@ -449,6 +449,11 @@ QScrollBar::add-line:vertical
                 <string>Video 2</string>
                </property>
               </column>
+              <column>
+               <property name="text">
+                <string>Poznámka</string>
+               </property>
+              </column>
              </widget>
             </item>
             <item>

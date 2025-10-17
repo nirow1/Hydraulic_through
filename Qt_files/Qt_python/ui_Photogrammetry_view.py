@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Photogrammetry_viewFVWeIm.ui'
+## Form generated from reading UI file 'Photogrammetry_viewSuJrZK.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.2
 ##
@@ -26,7 +26,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(1082, 821)
+        Form.resize(1071, 821)
         Form.setStyleSheet(u"QWidget{\n"
 "background-color: rgb(250, 250, 250);\n"
 "border-radius: 3px;\n"
@@ -125,6 +125,25 @@ class Ui_Form(object):
         self.tableWidget.horizontalHeader().setDefaultSectionSize(39)
 
         self.verticalLayout_3.addWidget(self.tableWidget)
+
+        self.widget_31 = QWidget(self.widget_7)
+        self.widget_31.setObjectName(u"widget_31")
+        self.widget_31.setMaximumSize(QSize(16777215, 25))
+        self.horizontalLayout_11 = QHBoxLayout(self.widget_31)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
+        self.label_19 = QLabel(self.widget_31)
+        self.label_19.setObjectName(u"label_19")
+
+        self.horizontalLayout_11.addWidget(self.label_19)
+
+        self.current_project_lbl = QLabel(self.widget_31)
+        self.current_project_lbl.setObjectName(u"current_project_lbl")
+
+        self.horizontalLayout_11.addWidget(self.current_project_lbl)
+
+
+        self.verticalLayout_3.addWidget(self.widget_31)
 
         self.widget_1 = QWidget(self.widget_7)
         self.widget_1.setObjectName(u"widget_1")
@@ -626,6 +645,8 @@ class Ui_Form(object):
         ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"M", None));
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"T", None));
+        self.label_19.setText(QCoreApplication.translate("Form", u"Aktualn\u00ed se zpracovv\u00e1v\u00e1: ", None))
+        self.current_project_lbl.setText("")
         self.label_18.setText(QCoreApplication.translate("Form", u"Maz\u00e1n\u00ed po ukon\u010den\u00ed", None))
         self.delete_files_chb.setText("")
         self.label_3.setText(QCoreApplication.translate("Form", u"Zarovn\u00e1n\u00ed fotek", None))
